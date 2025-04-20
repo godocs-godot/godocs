@@ -62,6 +62,30 @@ context = {
         "description": "Another very convenient method.",
       },
     ],
+    "signals": [
+      {
+        "name": "signal_a",
+        "args": [
+          {
+            "name": "arg1",
+            "type": "int",
+            "default": "0",
+          }
+        ],
+        "description": "A very convenient signal.",
+      },
+      {
+        "name": "signal_b",
+        "args": [
+          {
+            "name": "arg",
+            "type": "RegEx",
+            "default": "new()",
+          }
+        ],
+        "description": "Another very convenient signal.",
+      },
+    ],
   },
 }
 
