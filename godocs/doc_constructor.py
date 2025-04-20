@@ -47,7 +47,20 @@ context = {
             "default": "0",
           }
         ],
-      }
+        "description": "A very convenient method.",
+      },
+      {
+        "name": "method_b",
+        "type": "Dictionary[int, bool]",
+        "args": [
+          {
+            "name": "arg",
+            "type": "RegEx",
+            "default": "new()",
+          }
+        ],
+        "description": "Another very convenient method.",
+      },
     ],
   },
 }
