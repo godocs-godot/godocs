@@ -27,7 +27,14 @@ context = {
         "name": "property_a",
         "type": "Array[String]",
         "default": '""',
-      }
+        "description": "A very convenient property.",
+      },
+      {
+        "name": "property_b",
+        "type": "Dictionary[int, int]",
+        "default": '{}',
+        "description": "A very convenient Dictionary.",
+      },
     ],
     "methods": [
       {
