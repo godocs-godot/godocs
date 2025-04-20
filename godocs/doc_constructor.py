@@ -86,6 +86,20 @@ context = {
         "description": "Another very convenient signal.",
       },
     ],
+    "constants": [
+      {
+        "name": "CONSTANT_A",
+        "type": "String",
+        "value": '""',
+        "description": "A very convenient constant.",
+      },
+      {
+        "name": "CONSTANT_B",
+        "type": "bool",
+        "value": 'false',
+        "description": "Another very convenient constant.",
+      },
+    ],
   },
 }
 
