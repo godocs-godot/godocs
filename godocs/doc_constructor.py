@@ -13,7 +13,7 @@ env.filters["make_code_member_type_ref"] = make_code_member_type_ref
 env.filters["make_property_signature"] = make_property_signature
 env.filters["make_method_signature"] = make_method_signature
 
-template = env.get_template("class_reference.rst")
+template = env.get_template("class_reference.jinja")
 
 context = {
   "ref_prefix": "godocs",
@@ -98,6 +98,40 @@ context = {
         "type": "bool",
         "value": 'false',
         "description": "Another very convenient constant.",
+      },
+    ],
+    "enums": [
+      {
+        "name": "EnumA",
+        "values": [
+          {
+            "name": "EnumA.CONSTANT1",
+            "value": '0',
+            "description": "A very convenient constant.",
+          },
+          {
+            "name": "EnumA.CONSTANT2",
+            "value": '1',
+            "description": "A very convenient constant.",
+          },
+        ],
+        "description": "A very convenient Enum.",
+      },
+      {
+        "name": "EnumB",
+        "values": [
+          {
+            "name": "EnumB.CONSTANT1",
+            "value": '0',
+            "description": "A very convenient constant.",
+          },
+          {
+            "name": "EnumB.CONSTANT2",
+            "value": '1',
+            "description": "A very convenient constant.",
+          },
+        ],
+        "description": "A very convenient Enum.",
       },
     ],
   },

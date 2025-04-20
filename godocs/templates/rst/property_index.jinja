@@ -12,4 +12,4 @@ Property Index
    * - {{ property.type | make_code_member_type_ref(ref_prefix) }}
      - {{ property.name | join_code_member_name(class.name) | make_code_member_ref(ref_prefix, property.name) }}
      - ``{{ property.default }}``
-   {%- endfor %}
+   {% endfor %}

@@ -1,1 +1,0 @@
-:ref:`{{ title }} <{{ ref_prefix ~ ("_" if ref_prefix) }}{{ target }}>`
