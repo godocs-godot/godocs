@@ -1,5 +1,5 @@
 
-.. {{ class.name | make_code_member_label_target(ref_prefix) }}:
+.. _{{ class.name | make_code_member_label_target(ref_prefix) }}:
 
 {{ "=" * class.name|length }}
 {{ class.name }}
