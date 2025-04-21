@@ -2,7 +2,7 @@
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-def parse_file(path: str | Path):
+def parse_file(path: str | Path) -> ET.ElementTree:
   if isinstance(path, str):
     path = Path(path)
   
@@ -10,7 +10,7 @@ def parse_file(path: str | Path):
 
   return tree
 
-def parse(path: str | Path):
+def parse(path: str | Path) -> list[ET.ElementTree]:
   if isinstance(path, str):
     path = Path(path)
 
