@@ -1,11 +1,9 @@
 
-from godocs.ast.abstract_syntax_node import *
+from godocs.translation.ast.abstract_syntax_node import *
 
 class AbstractSyntaxTextNode(AbstractSyntaxNode):
 
-  content: str
-
-  def __init__(self, content):
+  def __init__(self, content: str):
     self.content = content
 
   def translate(self, translator) -> str:
