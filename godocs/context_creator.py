@@ -1,4 +1,3 @@
-
 from xml.etree.ElementTree import ElementTree, Element
 
 def get_class_node(class_name: str, docs: list[ElementTree]) -> Element | None:
@@ -238,6 +237,7 @@ def parse_class(root: Element, docs: list[ElementTree]) -> dict[str]:
 
 def create(docs: list[ElementTree], options: dict = {}) -> dict[str]:
   result = {
+    "ref_prefix": "godocs",
     "classes": [],
   }
 

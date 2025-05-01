@@ -1,4 +1,10 @@
-from jinja2 import Environment, PackageLoader, FileSystemLoader, select_autoescape
+from jinja2 import (
+  Environment,
+  PackageLoader,
+  FileSystemLoader,
+  select_autoescape,
+)
+
 from filters import *
 
 env = Environment(

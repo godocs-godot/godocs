@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 
-from godocs.translation.ast.abstract_syntax_text_node import *
-from godocs.translation.ast.abstract_syntax_tag_node import *
+from ..ast import (
+  AbstractSyntaxTextNode,
+  AbstractSyntaxTagNode,
+)
 
 class SyntaxTranslator(ABC):
 

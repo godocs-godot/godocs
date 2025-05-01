@@ -1,5 +1,4 @@
-
-from godocs.translation.ast.abstract_syntax_node import *
+from .abstract_syntax_node import AbstractSyntaxNode
 
 class AbstractSyntaxTextNode(AbstractSyntaxNode):
 

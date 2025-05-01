@@ -1,8 +1,11 @@
-
 import re
 
-from godocs.translation.interpreters.syntax_interpreter import *
-from godocs.translation.ast.abstract_syntax_text_node import *
+from .syntax_interpreter import SyntaxInterpreter
+from ..ast import (
+  AbstractSyntaxNode,
+  AbstractSyntaxTagNode,
+  AbstractSyntaxTextNode,
+)
 
 class BBCodeSyntaxInterpreter(SyntaxInterpreter):
 
