@@ -1,25 +1,34 @@
+from pathlib import Path
 from jinja2 import (
   Environment,
   PackageLoader,
   FileSystemLoader,
   select_autoescape,
 )
+from util import load_module, get_functions_from_module, get_subdirs
 
-from filters import *
+def get_constructor_paths() -> list[Path]:
+  constructors_path = Path(__file__).parent
 
-env = Environment(
-    loader=FileSystemLoader("godocs/templates/rst/"),
-    autoescape=select_autoescape()
-)
+  constructors = get_subdirs(constructors_path, exclude=[ "__pycache__" ])
 
-env.filters["make_code_member_label_target"] = make_code_member_label_target
-env.filters["join_code_member_name"] = join_code_member_name
-env.filters["make_code_member_ref"] = make_code_member_ref
-env.filters["make_code_member_type_ref"] = make_code_member_type_ref
-env.filters["make_property_signature"] = make_property_signature
-env.filters["make_method_signature"] = make_method_signature
+  return constructors
 
-template = env.get_template("class_reference.jinja")
+def get_template_paths(constructor: Path) -> list[Path]:
+  templates_path = constructor.joinpath("templates")
+
+  templates = get_subdirs(templates_path, exclude=[ "__pycache__" ])
+
+  return templates
+
+def get_filters_path(constructor: Path) -> Path:
+  return constructor.joinpath("filters.py")
+
+def register_filters(env: Environment, filters: list[tuple]) -> Environment:
+  for filter in filters:
+    env.filters[filter[0]] = filter[1]
+  
+  return env
 
 context = {
   "ref_prefix": "godocs",
@@ -143,4 +152,30 @@ context = {
   },
 }
 
-print(template.render(context))
+def construct(constructor):
+  print()
+
+  constructor_paths = get_constructor_paths()
+
+  rst_constructor_path = constructor_paths[0]
+
+  template_paths = get_template_paths(rst_constructor_path)
+
+  class_reference_template_path = template_paths[1]
+
+  filters_path = get_filters_path(rst_constructor_path)
+
+  filters_module = load_module("filters", filters_path)
+
+  filters = get_functions_from_module(filters_module)
+  
+  env = Environment(
+      loader=FileSystemLoader(class_reference_template_path),
+      autoescape=select_autoescape()
+  )
+  
+  register_filters(env, filters)
+
+  template = env.get_template("index.jinja")
+
+  print(template.render(context))
