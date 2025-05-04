@@ -23,7 +23,7 @@ def get_subdirs(
   path: str | PathLike,
   exclude: list[str] = None,
   include: list[str] = None,
-):
+) -> list[Path]:
   if exclude == None:
     exclude = []
   if include == None:
