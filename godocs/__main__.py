@@ -1,5 +1,8 @@
 from argparse import ArgumentParser
 import sys
+import json
+
+from parser import parse as xml_parser, create_context
 
 def main():
   parser = ArgumentParser(
@@ -24,6 +27,12 @@ def main():
     default="rst",
     choices=[ "rst" ],
   )
+  parser.add_argument(
+    "-p", "--ref-prefix",
+    help="The prefix to use on :ref: roles generated on output RST (used when --constructor is 'rst'). (default: %(default)s)",
+    type=str,
+    default="godocs",
+  )
 
   # Show help if no arguments were provided
   if len(sys.argv) == 1:
@@ -32,7 +41,11 @@ def main():
 
   args = parser.parse_args()
 
-  print(args)
+  parsed_docs = xml_parser(args.src)
+
+  context = create_context(parsed_docs, { "ref_prefix": args.ref_prefix })
+
+  print(json.dumps(context, indent="  "))
 
 if __name__ == "__main__":
   main()
