@@ -235,9 +235,16 @@ def parse_class(root: Element, docs: list[ElementTree]) -> dict[str]:
 
   return result
 
-def create(docs: list[ElementTree], options: dict = {}) -> dict[str]:
+def create(docs: list[ElementTree], options: dict = None) -> dict[str]:
+  if options is None:
+    options = {
+      "ref_prefix": "godocs",
+    }
+
   result = {
-    "ref_prefix": "godocs",
+    "options": {
+      "ref_prefix": options["ref_prefix"],
+    },
     "classes": [],
   }
 
