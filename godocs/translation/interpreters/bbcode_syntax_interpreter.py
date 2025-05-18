@@ -1,7 +1,7 @@
 import re
 
 from .syntax_interpreter import SyntaxInterpreter
-from ..ast import (
+from godocs.translation.ast import (
   AbstractSyntaxNode,
   AbstractSyntaxTagNode,
   AbstractSyntaxTextNode,

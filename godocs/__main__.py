@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
 import sys
-import json
 
-from parser import parse as xml_parser, create_context
+from godocs.parser import parse as xml_parser, create_context
+from godocs.constructor import Constructor, JinjaConstructor
 
 def main():
   parser = ArgumentParser(
@@ -45,7 +45,11 @@ def main():
 
   context = create_context(parsed_docs, { "ref_prefix": args.ref_prefix })
 
-  print(json.dumps(context, indent="  "))
+  constructor: Constructor = JinjaConstructor(args.constructor)
+
+  build = constructor.construct(context)
+
+  print(build)
 
 if __name__ == "__main__":
   main()

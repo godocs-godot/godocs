@@ -1,12 +1,12 @@
 from functools import reduce
 from textwrap import indent
 
-from .rst_syntax_translator import SyntaxTranslator
-from ..ast import (
+from .syntax_translator import SyntaxTranslator
+from godocs.translation.ast import (
   AbstractSyntaxTagNode,
   AbstractSyntaxTextNode,
 )
-from godocs.filters import make_code_member_ref
+from godocs.constructor.jinja_constructor.rst.filters import make_code_member_ref
 
 class RSTSyntaxTranslator(SyntaxTranslator):
 

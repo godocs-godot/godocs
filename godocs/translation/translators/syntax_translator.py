@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ..ast import (
+from godocs.translation.ast import (
   AbstractSyntaxTextNode,
   AbstractSyntaxTagNode,
 )

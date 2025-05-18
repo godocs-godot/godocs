@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ..ast import AbstractSyntaxTagNode
+from godocs.translation.ast import AbstractSyntaxTagNode
 
 class SyntaxInterpreter(ABC):
 

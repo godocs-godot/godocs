@@ -1,136 +1,13 @@
 from pathlib import Path
-from jinja2 import (
-  Environment,
-  FileSystemLoader,
-  select_autoescape,
-)
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from util import load_module, get_functions_from_module, get_subdirs
-from constructor import Constructor
-
-context = {
-  "ref_prefix": "godocs",
-  "class": {
-    "name": "Class",
-    "parents": [ "SuperClass", "GrandClass", "ImenseClass.InnerClass" ],
-    "brief_description": "This is a Class",
-    "description": "This is a long description.",
-    "properties": [
-      {
-        "name": "property_a",
-        "type": "Array[String]",
-        "default": '""',
-        "description": "A very convenient property.",
-      },
-      {
-        "name": "property_b",
-        "type": "Dictionary[int, int]",
-        "default": '{}',
-        "description": "A very convenient Dictionary.",
-      },
-    ],
-    "methods": [
-      {
-        "name": "method_a",
-        "type": "Array[String]",
-        "args": [
-          {
-            "name": "arg1",
-            "type": "int",
-            "default": "0",
-          }
-        ],
-        "description": "A very convenient method.",
-      },
-      {
-        "name": "method_b",
-        "type": "Dictionary[int, bool]",
-        "args": [
-          {
-            "name": "arg",
-            "type": "RegEx",
-            "default": "new()",
-          }
-        ],
-        "description": "Another very convenient method.",
-      },
-    ],
-    "signals": [
-      {
-        "name": "signal_a",
-        "args": [
-          {
-            "name": "arg1",
-            "type": "int",
-            "default": "0",
-          }
-        ],
-        "description": "A very convenient signal.",
-      },
-      {
-        "name": "signal_b",
-        "args": [
-          {
-            "name": "arg",
-            "type": "RegEx",
-            "default": "new()",
-          }
-        ],
-        "description": "Another very convenient signal.",
-      },
-    ],
-    "constants": [
-      {
-        "name": "CONSTANT_A",
-        "type": "String",
-        "value": '""',
-        "description": "A very convenient constant.",
-      },
-      {
-        "name": "CONSTANT_B",
-        "type": "bool",
-        "value": 'false',
-        "description": "Another very convenient constant.",
-      },
-    ],
-    "enums": [
-      {
-        "name": "EnumA",
-        "values": [
-          {
-            "name": "EnumA.CONSTANT1",
-            "value": '0',
-            "description": "A very convenient constant.",
-          },
-          {
-            "name": "EnumA.CONSTANT2",
-            "value": '1',
-            "description": "A very convenient constant.",
-          },
-        ],
-        "description": "A very convenient Enum.",
-      },
-      {
-        "name": "EnumB",
-        "values": [
-          {
-            "name": "EnumB.CONSTANT1",
-            "value": '0',
-            "description": "A very convenient constant.",
-          },
-          {
-            "name": "EnumB.CONSTANT2",
-            "value": '1',
-            "description": "A very convenient constant.",
-          },
-        ],
-        "description": "A very convenient Enum.",
-      },
-    ],
-  },
-}
+from godocs.util import load_module, get_functions_from_module, get_subdirs
+from godocs.constructor import Constructor
 
 class JinjaConstructor(Constructor):
+
+  def __init__(self, type: str):
+    self.type = type
 
   def get_model_paths(self) -> list[Path]:
     """
@@ -177,7 +54,7 @@ class JinjaConstructor(Constructor):
     
     return env
 
-  def construct(self, constructor):
+  def construct(self, context: dict):
     constructor_paths = self.get_model_paths()
 
     rst_constructor_path = constructor_paths[0]
