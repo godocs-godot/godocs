@@ -47,9 +47,7 @@ def main():
 
   constructor: Constructor = JinjaConstructor(args.constructor)
 
-  build = constructor.construct(context)
-
-  print(build)
+  build = constructor.construct(context, args.build)
 
 if __name__ == "__main__":
   main()
