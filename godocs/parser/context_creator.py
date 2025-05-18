@@ -237,14 +237,10 @@ def parse_class(root: Element, docs: list[ElementTree]) -> dict[str]:
 
 def create(docs: list[ElementTree], options: dict = None) -> dict[str]:
   if options is None:
-    options = {
-      "ref_prefix": "godocs",
-    }
+    options = {}
 
   result = {
-    "options": {
-      "ref_prefix": options["ref_prefix"],
-    },
+    "options": options,
     "classes": [],
   }
 
