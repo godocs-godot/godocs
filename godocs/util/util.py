@@ -8,16 +8,17 @@ def load_module(name: str, path: str | PathLike):
   spec = importlib.util.spec_from_file_location(name, path)
   module = importlib.util.module_from_spec(spec)
 
-  sys.modules[name] = module  # Register in sys.modules
+  # Register in sys.modules
+  sys.modules[name] = module
   spec.loader.exec_module(module)
 
   return module
 
 def get_functions_from_module(module: object):
-  return [
-    member for member in inspect.getmembers(module, inspect.isfunction)
-    if member[1].__module__ == module.__name__
-  ]
+  return list(filter(
+    lambda function_data: function_data[1].__module__ == module.__name__,
+    inspect.getmembers(module, inspect.isfunction)
+  ))
 
 def get_subdirs(
   path: str | PathLike,
@@ -44,3 +45,6 @@ def get_subdirs(
     subdirs.append(p)
 
   return subdirs
+
+def find(iter, callback):
+  return next((item for i, item in enumerate(iter) if callback(item, i)), None)
