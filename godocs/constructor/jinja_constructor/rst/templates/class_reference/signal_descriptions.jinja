@@ -4,9 +4,9 @@
 {{ "=" * title | length }}
 
 {% for signal in class.signals %}
-.. _{{ signal.name | join_code_member_name(class.name) | make_code_member_label_target(ref_prefix) }}:
+.. _{{ signal.name | join_code_member_name(class.name) | make_code_member_label_target(options.ref_prefix) }}:
 
-{%- set signature = signal.name | join_code_member_name(class.name) | make_method_signature("", ref_prefix, signal.args, False, False) %}
+{%- set signature = signal.name | join_code_member_name(class.name) | make_method_signature("", options.ref_prefix, signal.args, False, False) %}
 
 {{ signature }}
 {{ "-" * signature | length }}

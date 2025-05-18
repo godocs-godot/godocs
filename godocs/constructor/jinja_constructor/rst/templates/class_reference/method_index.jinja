@@ -8,6 +8,6 @@ Method Index
    * - Return type
      - Signature
    {% for method in class.methods -%}
-   * - {{ method.type | make_code_member_type_ref(ref_prefix) }}
-     - {{ method.name | join_code_member_name(class.name) | make_method_signature("", ref_prefix, method.args, method.is_static) }}
+   * - {{ method.type | make_code_member_type_ref(options.ref_prefix) }}
+     - {{ method.name | join_code_member_name(class.name) | make_method_signature("", options.ref_prefix, method.args, method.is_static) }}
    {%- endfor %}
