@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "godocs"
@@ -8,14 +8,13 @@ version = "0.0.1"
 authors = [
   { name="Daniel Sousa (nadjiel)", email="oliveira.daaaaniel@gmail.com" },
 ]
-description = "CLI tool for converting Godot's XML docs into RST Markdown."
+description = "CLI tool for converting Godot's XML docs into RST Markdown"
 keywords=[ "python", "godot", "documentation", "docs", "godocs", "sphinx", "jinja2" ]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
 requires-python = ">=3.0"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -24,6 +23,16 @@ classifiers = [
 dependencies = [
 #    "requests", # Example dependency
 #    "numpy>=1.20", # Example dependency with version constraint
+]
+
+[project.scripts]
+godocs = "godocs.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "build",
+  "twine",
+  "pytest",
 ]
 
 [project.urls]
