@@ -1,1 +1,48 @@
 # Godocs
+
+## Install dependencies
+It's **recommended** to be **inside a virtual environment** before **installing the project dependencies**, as to **not clutter your global dependencies**.
+
+To **create a virtual environment in the project folder** using Python's built-in `venv` module, run the following command:
+
+``` sh
+python -m venv .venv
+```
+
+This will create a **venv** inside the `.venv` folder.
+
+Now, the installations can be made with either command:
+
+``` sh
+# For production only dependencies:
+pip install .
+
+# For development dependencies:
+pip install .[dev]
+```
+
+The **dependencies** installed are **listed** in the `pyproject.toml` under the `[project.dependencies]` field - for general **required dependencies** - and the `[project.optional-dependencies.dev]` field - for **development dependencies** (which include test and build stuff).
+
+## Building
+
+### For development
+In a **dev context**, it's easier to **build** the project with the **editable option**, so **changes are automatically reflected in the current environment**.
+
+To do so, run the following command:
+
+``` sh
+python install --editable .
+```
+
+### For production
+To **build the project** for production, the `build` **dependency is needed**, which is specified in the **dev dependencies** from `pyproject.toml`.
+
+With that **dependency installed** (through the **installation of the dev dependencies**, or its manual installation), the following command can be used:
+
+``` sh
+python -m build .
+```
+
+This will use the `setuptools` **build backend** in an **isolated temporary environment** to **create the distributables**.
+
+When executed, **there should be** a `dist` folder with a `.tar.gz` archive and a `.whl` build.
