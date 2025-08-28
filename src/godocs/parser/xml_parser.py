@@ -34,6 +34,9 @@ def parse_folder(path: Path):
         NotADirectoryError: If the path doesn't point to a directory.
     """
 
+    if not path.is_dir():
+        raise NotADirectoryError(f"{path} is not a directory")
+
     return [parse_file(subpath) for subpath in path.glob("*.xml")]
 
 
