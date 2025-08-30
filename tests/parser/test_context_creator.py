@@ -1,7 +1,7 @@
 import pytest
 import xml.etree.ElementTree as ET
 
-from godocs.parser.context_creator import get_class_node, parse_inheritage
+from godocs.parser.context_creator import get_class_node, parse_inheritage, parse_property
 
 from godocs.parser.types import XMLDoc
 
@@ -66,6 +66,24 @@ def test_parse_inheritage_unexisting():
 
     # Assert
     assert len(inheritage) == 0
+
+
+def test_parse_property_succeds():
+    # Arrange
+    property = ET.fromstring("""
+        <member name="color" type="Color" setter="set_color" getter="get_color" default="null">
+          Description
+        </member>
+    """)
+
+    # Act
+    result = parse_property(property)
+
+    # Assert
+    assert result["name"] == "color"
+    assert result["type"] == "Color"
+    assert result["default"] == "null"
+    assert result["description"] == "Description"
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange

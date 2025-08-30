@@ -32,20 +32,39 @@ def parse_inheritage(root: XMLNode, docs: list[XMLDoc]) -> list[str]:
     return result
 
 
-# def parse_property(node: Element) -> dict[str, str]:
-#     result = {
-#         "name": '',
-#         "type": '',
-#         "default": '',
-#         "description": '',
-#     }
+def parse_property(node: XMLNode) -> dict[str, str]:
+    """
+    Parses a member node into a dict.
 
-#     result["name"] = node.attrib.get("name", '')
-#     result["type"] = node.attrib.get("type", '')
-#     result["default"] = node.attrib.get("default", '')
-#     result["description"] = node.text.strip() if node.text is not None else ''
+    Member node structure::
 
-#     return result
+        <member name="color" type="Color" setter="set_color" getter="get_color" default="null">
+          Description
+        </member>
+
+    Return structure::
+
+        result = {
+            "name": '',
+            "type": '',
+            "default": '',
+            "description": '',
+        }
+    """
+
+    result = {
+        "name": '',
+        "type": '',
+        "default": '',
+        "description": '',
+    }
+
+    result["name"] = node.attrib.get("name", '')
+    result["type"] = node.attrib.get("type", '')
+    result["default"] = node.attrib.get("default", '')
+    result["description"] = node.text.strip() if node.text is not None else ''
+
+    return result
 
 
 # def parse_method(node: Element) -> dict[str]:
