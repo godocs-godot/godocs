@@ -21,6 +21,19 @@ def test_get_class_node_finds_class():
     assert class_node.attrib["name"] == "B"
 
 
+def test_get_class_node_returns_none():
+    # Arrange
+    docs: list[XMLDoc] = [
+        ET.ElementTree(ET.fromstring('<class name="A"></class>')),
+        ET.ElementTree(ET.fromstring('<class name="B"></class>'))
+    ]
+
+    # Act
+    class_node = get_class_node("C", docs)
+
+    # Assert
+    assert class_node is None
+
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange
 #     file = tmp_path / "test.xml"
