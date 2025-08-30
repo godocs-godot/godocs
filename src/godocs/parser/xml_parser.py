@@ -1,8 +1,10 @@
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+from .types import XMLDoc
 
-def parse_file(path: Path):
+
+def parse_file(path: str | Path) -> XMLDoc:
     """
     Parses an XML file from a given path and returns an ElementTree object.
 
@@ -20,7 +22,7 @@ def parse_file(path: Path):
     return ET.parse(path)
 
 
-def parse_folder(path: Path):
+def parse_folder(path: str | Path) -> list[XMLDoc]:
     """
     Parses all XML files from a given path and returns a list with ElementTree objects.
 
@@ -34,13 +36,15 @@ def parse_folder(path: Path):
         NotADirectoryError: If the path doesn't point to a directory.
     """
 
+    path = Path(path)
+
     if not path.is_dir():
         raise NotADirectoryError(f"{path} is not a directory")
 
     return [parse_file(subpath) for subpath in path.glob("*.xml")]
 
 
-def parse(path: Path):
+def parse(path: str | Path) -> list[XMLDoc]:
     """
     Parses one or more XML files from a given path.
 
@@ -58,5 +62,7 @@ def parse(path: Path):
         FileNotFoundError: If the file at the given path does not exist.
         xml.etree.ElementTree.ParseError: If the file is not a valid XML document.
     """
+
+    path = Path(path)
 
     return [parse_file(path)] if path.is_file() else parse_folder(path)
