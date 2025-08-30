@@ -1,7 +1,7 @@
 import pytest
 import xml.etree.ElementTree as ET
 
-from godocs.parser.context_creator import get_class_node, parse_inheritage, parse_property
+from godocs.parser.context_creator import get_class_node, parse_inheritage, parse_property, parse_method
 
 from godocs.parser.types import XMLDoc
 
@@ -83,6 +83,36 @@ def test_parse_property_succeds():
     assert result["name"] == "color"
     assert result["type"] == "Color"
     assert result["default"] == "null"
+    assert result["description"] == "Description"
+
+
+def test_parse_methods_succeds():
+    # Arrange
+    method = ET.fromstring("""
+        <method name="add">
+          <return type="int" />
+          <param index="0" name="num1" type="int" />
+          <param index="1" name="num2" type="int" />
+          <description>
+            Description
+          </description>
+        </method>
+    """)
+
+    # Act
+    result = parse_method(method)
+
+    # Assert
+    assert result["name"] == "add"
+    assert result["type"] == "int"
+    assert result["args"][0]["name"] == "num1"
+    assert result["args"][0]["type"] == "int"
+    assert result["args"][0]["default"] == ""
+    assert result["args"][0]["description"] == ""
+    assert result["args"][1]["name"] == "num2"
+    assert result["args"][1]["type"] == "int"
+    assert result["args"][1]["default"] == ""
+    assert result["args"][1]["description"] == ""
     assert result["description"] == "Description"
 
 # def test_parse_file_invalid_xml(tmp_path: Path):

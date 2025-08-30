@@ -1,7 +1,7 @@
 from xml.etree.ElementTree import ElementTree, Element
 import xml.etree.ElementTree as ET
 
-from .types import XMLNode, XMLDoc
+from .types import XMLNode, XMLDoc, Property, Method
 
 
 def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
@@ -32,7 +32,7 @@ def parse_inheritage(root: XMLNode, docs: list[XMLDoc]) -> list[str]:
     return result
 
 
-def parse_property(node: XMLNode) -> dict[str, str]:
+def parse_property(node: XMLNode) -> Property:
     """
     Parses a member node into a dict.
 
@@ -45,14 +45,14 @@ def parse_property(node: XMLNode) -> dict[str, str]:
     Return structure::
 
         result = {
-            "name": '',
-            "type": '',
-            "default": '',
-            "description": '',
+            "name": "color",
+            "type": "Color",
+            "default": "null",
+            "description": "Description",
         }
     """
 
-    result = {
+    result: Property = {
         "name": '',
         "type": '',
         "default": '',
@@ -67,23 +67,61 @@ def parse_property(node: XMLNode) -> dict[str, str]:
     return result
 
 
-# def parse_method(node: Element) -> dict[str]:
-#     result = {
-#         "name": '',
-#         "type": '',
-#         "args": [],
-#         "description": '',
-#     }
+def parse_method(node: XMLNode) -> Method:
+    """
+    Parses a method node into a dict.
 
-#     result["name"] = node.attrib.get("name", '')
-#     result["type"] = node.find("return").attrib.get("type", '')
-#     result["description"] = node.find(
-#         "description").text.strip() if node.text is not None else ''
+    Method node structure::
 
-#     for arg in node.findall("param"):
-#         result["args"].append(parse_property(arg))
+        <method name="add">
+          <return type="int" />
+          <param index="0" name="num1" type="int" />
+          <param index="1" name="num2" type="int" />
+          <description>
+            Description
+          </description>
+        </method>
 
-#     return result
+    Return structure::
+
+        result = {
+          "name": "add",
+          "type": "int",
+          "args": [
+            {
+              "name": "num1",
+              "type": "int",
+              "default": "",
+              "description": "",
+            },
+            {
+              "name": "num2",
+              "type": "int",
+              "default": "",
+              "description": "",
+            },
+          ],
+          "description": "Description",
+        }
+    """
+
+    result: Method = {
+        "name": '',
+        "type": '',
+        "args": [],
+        "description": '',
+    }
+
+    result["name"] = node.attrib.get("name", '')
+    result["type"] = node.find("return").attrib.get("type", '')  # type: ignore
+    result["description"] = node \
+        .find("description") \
+        .text.strip() if node.text is not None else ''  # type: ignore
+
+    for arg in node.findall("param"):
+        result["args"].append(parse_property(arg))
+
+    return result
 
 
 # def parse_signal(node: Element) -> dict[str]:
