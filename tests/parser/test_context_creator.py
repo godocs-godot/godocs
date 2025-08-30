@@ -1,7 +1,7 @@
 import pytest
 import xml.etree.ElementTree as ET
 
-from godocs.parser.context_creator import get_class_node
+from godocs.parser.context_creator import get_class_node, parse_inheritage
 
 from godocs.parser.types import XMLDoc
 
@@ -33,6 +33,39 @@ def test_get_class_node_returns_none():
 
     # Assert
     assert class_node is None
+
+
+def test_parse_inheritage_succeds():
+    # Arrange
+    class_c = ET.fromstring('<class name="C" inherits="A"></class>')
+    docs: list[XMLDoc] = [
+        ET.ElementTree(ET.fromstring('<class name="A" inherits="B"></class>')),
+        ET.ElementTree(ET.fromstring('<class name="B"></class>')),
+        ET.ElementTree(class_c),
+    ]
+
+    # Act
+    inheritage = parse_inheritage(class_c, docs)
+
+    # Assert
+    assert inheritage[0] == "A"
+    assert inheritage[1] == "B"
+
+
+def test_parse_inheritage_unexisting():
+    # Arrange
+    class_c = ET.fromstring('<class name="C"></class>')
+    docs: list[XMLDoc] = [
+        ET.ElementTree(ET.fromstring('<class name="A"></class>')),
+        ET.ElementTree(ET.fromstring('<class name="B"></class>')),
+        ET.ElementTree(class_c),
+    ]
+
+    # Act
+    inheritage = parse_inheritage(class_c, docs)
+
+    # Assert
+    assert len(inheritage) == 0
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange

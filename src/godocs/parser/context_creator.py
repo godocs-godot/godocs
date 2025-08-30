@@ -14,22 +14,22 @@ def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
     return None
 
 
-# def parse_inheritage(root: Element, docs: list[ElementTree]) -> list[str]:
-#     result: list[str] = []
+def parse_inheritage(root: XMLNode, docs: list[XMLDoc]) -> list[str]:
+    result: list[str] = []
 
-#     parent_name = root.attrib.get("inherits", '')
+    parent_name = root.attrib.get("inherits", '')
 
-#     while True:
-#         result.append(parent_name)
+    while parent_name != '':
+        result.append(parent_name)
 
-#         parent = get_class_node(parent_name, docs)
+        parent = get_class_node(parent_name, docs)
 
-#         if parent is None:
-#             break
+        if parent is None:
+            break
 
-#         parent_name = parent.attrib.get("inherits", '')
+        parent_name = parent.attrib.get("inherits", '')
 
-#     return result
+    return result
 
 
 # def parse_property(node: Element) -> dict[str, str]:
