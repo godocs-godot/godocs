@@ -1,7 +1,7 @@
 from xml.etree.ElementTree import ElementTree, Element
 import xml.etree.ElementTree as ET
 
-from .types import XMLNode, XMLDoc, Property, Method, Signal
+from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal
 
 
 def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
@@ -170,18 +170,36 @@ def parse_signal(node: XMLNode) -> Signal:
     return result
 
 
-# def parse_constant(node: Element) -> dict[str, str]:
-#     result = {
-#         "name": '',
-#         "value": '',
-#         "description": '',
-#     }
+def parse_constant(node: XMLNode) -> Constant:
+    """
+    Parses a constant node into a dict.
 
-#     result["name"] = node.attrib.get("name", '')
-#     result["value"] = node.attrib.get("value", '')
-#     result["description"] = node.text.strip() if node.text is not None else ''
+    Constant node structure::
 
-#     return result
+        <constant name="PI" value="3.14">
+          The value of PI.
+        </constant>
+
+    Return structure::
+
+        result = {
+          "name": "PI",
+          "value": 3.14,
+          "description": "The value of PI.",
+        }
+    """
+
+    result: Constant = {
+        "name": '',
+        "value": '',
+        "description": '',
+    }
+
+    result["name"] = node.attrib.get("name", '')
+    result["value"] = node.attrib.get("value", '')
+    result["description"] = node.text.strip() if node.text is not None else ''
+
+    return result
 
 
 # def parse_enum(name, values: list) -> dict[str, str]:

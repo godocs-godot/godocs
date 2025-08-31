@@ -9,6 +9,12 @@ class Property(TypedDict):
     description: str
 
 
+class Constant(TypedDict):
+    name: str
+    value: str
+    description: str
+
+
 class Method(TypedDict):
     name: str
     type: str

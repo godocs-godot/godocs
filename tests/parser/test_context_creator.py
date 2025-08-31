@@ -1,7 +1,9 @@
 import pytest
 import xml.etree.ElementTree as ET
 
-from godocs.parser.context_creator import get_class_node, parse_inheritage, parse_property, parse_method, parse_signal
+from godocs.parser.context_creator import (
+    get_class_node, parse_inheritage, parse_property, parse_method, parse_signal, parse_constant
+)
 
 from godocs.parser.types import XMLDoc
 
@@ -142,6 +144,23 @@ def test_parse_signal_succeds():
     assert result["args"][1]["default"] == ""
     assert result["args"][1]["description"] == ""
     assert result["description"] == "Description"
+
+
+def test_parse_constant_succeds():
+    # Arrange
+    constant = ET.fromstring("""
+        <constant name="PI" value="3.14">
+          The value of PI.
+        </constant>
+    """)
+
+    # Act
+    result = parse_constant(constant)
+
+    # Assert
+    assert result["name"] == "PI"
+    assert result["value"] == "3.14"
+    assert result["description"] == "The value of PI."
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange
