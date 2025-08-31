@@ -557,16 +557,50 @@ def parse_enums(node: XMLNode) -> list[Enum]:
     return result
 
 
-# def parse_theme_items(node: Element) -> list[dict[str, str]]:
-#     result = []
+def parse_theme_items(node: XMLNode) -> list[ThemeItem]:
+    """
+    Parses a node with a list of theme items into a list of dicts.
 
-#     for theme_item in node:
-#         if theme_item.text is None or theme_item.text.strip() == '':
-#             continue
+    Theme items node structure::
 
-#         result.append(parse_theme_item(theme_item))
+        <theme_items>
+          <theme_item name="font_color" data_type="color" type="Color" default="black">
+            The default font color.
+          </theme_item>
+          <theme_item name="font_size" data_type="int" type="int" default="14">
+            The default font size.
+          </theme_item>
+        </theme_items>
 
-#     return result
+    Return structure::
+
+        result = [
+          {
+            "name": "font_color",
+            "data_type": "color",
+            "type": "Color",
+            "default": "black",
+            "description": "The default font color.",
+          },
+          {
+            "name": "font_size",
+            "data_type": "int",
+            "type": "int",
+            "default": "14",
+            "description": "The default font size.",
+          },
+        ]
+    """
+
+    result: list[ThemeItem] = []
+
+    for theme_item in node:
+        if theme_item.text is None or theme_item.text.strip() == '':
+            continue
+
+        result.append(parse_theme_item(theme_item))
+
+    return result
 
 
 # def parse_class(root: Element, docs: list[ElementTree]) -> dict[str]:

@@ -15,6 +15,7 @@ from godocs.parser.context_creator import (
     parse_signals,
     parse_constants,
     parse_enums,
+    parse_theme_items,
 )
 
 from godocs.parser.types import XMLDoc
@@ -421,6 +422,36 @@ def test_parse_enums_ignores_constants():
     assert result[0]["values"][1]["name"] == "SUBTRACTION"
     assert result[0]["values"][1]["value"] == "1"
     assert result[0]["values"][1]["description"] == "The subtraction operation."
+
+
+def test_parse_theme_items_succeeds():
+    # Arrange
+    theme_items = ET.fromstring("""
+        <theme_items>
+          <theme_item name="font_color" data_type="color" type="Color" default="black">
+            The default font color.
+          </theme_item>
+          <theme_item name="font_size" data_type="int" type="int" default="14">
+            The default font size.
+          </theme_item>
+        </theme_items>
+    """)
+
+    # Act
+    result = parse_theme_items(theme_items)
+
+    # Assert
+    assert result[0]["name"] == "font_color"
+    assert result[0]["data_type"] == "color"
+    assert result[0]["type"] == "Color"
+    assert result[0]["default"] == "black"
+    assert result[0]["description"] == "The default font color."
+
+    assert result[1]["name"] == "font_size"
+    assert result[1]["data_type"] == "int"
+    assert result[1]["type"] == "int"
+    assert result[1]["default"] == "14"
+    assert result[1]["description"] == "The default font size."
 
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
