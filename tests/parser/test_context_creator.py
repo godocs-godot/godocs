@@ -2,7 +2,7 @@ import pytest
 import xml.etree.ElementTree as ET
 
 from godocs.parser.context_creator import (
-    get_class_node, parse_inheritage, parse_property, parse_method, parse_signal, parse_constant
+    get_class_node, parse_inheritage, parse_property, parse_method, parse_signal, parse_constant, parse_enum
 )
 
 from godocs.parser.types import XMLDoc
@@ -161,6 +161,35 @@ def test_parse_constant_succeds():
     assert result["name"] == "PI"
     assert result["value"] == "3.14"
     assert result["description"] == "The value of PI."
+
+
+def test_parse_enum_succeds():
+    # Arrange
+    values = [
+        ET.fromstring("""
+            <constant name="ADDITION" value="0" enum="Operation">
+              Operation of adding two numbers.
+            </constant>
+        """),
+        ET.fromstring("""
+            <constant name="SUBTRACTION" value="1" enum="Operation">
+              Operation of subtracting two numbers.
+            </constant>
+        """),
+    ]
+
+    # Act
+    result = parse_enum("Operation", values)
+
+    # Assert
+    assert result["name"] == "Operation"
+    assert result["values"][0]["name"] == "ADDITION"
+    assert result["values"][0]["value"] == "0"
+    assert result["values"][0]["description"] == "Operation of adding two numbers."
+    assert result["values"][1]["name"] == "SUBTRACTION"
+    assert result["values"][1]["value"] == "1"
+    assert result["values"][1]["description"] == "Operation of subtracting two numbers."
+    assert result["description"] == ""
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange

@@ -1,7 +1,7 @@
 from xml.etree.ElementTree import ElementTree, Element
 import xml.etree.ElementTree as ET
 
-from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal
+from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal, Enum
 
 
 def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
@@ -202,21 +202,65 @@ def parse_constant(node: XMLNode) -> Constant:
     return result
 
 
-# def parse_enum(name, values: list) -> dict[str, str]:
-#     result = {
-#         "name": '',
-#         "values": [],
-#         "description": '',
-#     }
+def parse_enum(name: str, values: list[XMLNode]) -> Enum:
+    """
+    Parses a list of constant nodes into an enum dict.
 
-#     result["name"] = name
+    Different from the other parse functions, this one accepts a
+    name and a list of XMLNodes with the enum constants.
 
-#     for value in values:
-#         result["values"].append(parse_constant(value))
+    This is done this way because the Godot XML docs don't
+    treat enums as a separate "entity". Enum members are got from
+    constants with a enum attribute in common, which defines the
+    name from the enum.
 
-#     # result["description"] =  There's no way to get enum descriptions with doctool
+    Also because of the XML docs structure, Enums don't store
+    description data, which is why this function's enum dict
+    will always have an empty str as its description.
 
-#     return result
+    node structure::
+
+        <constant name="ADDITION" value="0" enum="Operation">
+          Operation of adding two numbers.
+        </constant>
+        <constant name="SUBTRACTION" value="1" enum="Operation">
+          Operation of subtracting two numbers.
+        </constant>
+
+    Return structure::
+
+        result = {
+          "name": "Operation",
+          "values": [
+            {
+              "name": "ADDITION",
+              "value": "0",
+              "description": "Operation of adding two numbers.",
+            },
+            {
+              "name": "SUBTRACTION",
+              "value": "1",
+              "description": "Operation of subtracting two numbers.",
+            },
+          ],
+          "description": "",
+        }
+    """
+
+    result: Enum = {
+        "name": '',
+        "values": [],
+        "description": '',
+    }
+
+    result["name"] = name
+
+    for value in values:
+        result["values"].append(parse_constant(value))
+
+    # result["description"] =  There's no way to get enum descriptions with doctool
+
+    return result
 
 
 # def parse_theme_item(node: Element) -> dict[str, str]:

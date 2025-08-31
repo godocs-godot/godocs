@@ -28,6 +28,12 @@ class Signal(TypedDict):
     description: str
 
 
+class Enum(TypedDict):
+    name: str
+    values: list[Constant]
+    description: str
+
+
 type XMLNode = ET.Element[str]
 
 type XMLDoc = ET.ElementTree[XMLNode]
