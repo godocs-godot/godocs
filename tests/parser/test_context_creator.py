@@ -2,7 +2,14 @@ import pytest
 import xml.etree.ElementTree as ET
 
 from godocs.parser.context_creator import (
-    get_class_node, parse_inheritage, parse_property, parse_method, parse_signal, parse_constant, parse_enum
+    get_class_node,
+    parse_inheritage,
+    parse_property,
+    parse_method,
+    parse_signal,
+    parse_constant,
+    parse_enum,
+    parse_theme_item,
 )
 
 from godocs.parser.types import XMLDoc
@@ -190,6 +197,25 @@ def test_parse_enum_succeds():
     assert result["values"][1]["value"] == "1"
     assert result["values"][1]["description"] == "Operation of subtracting two numbers."
     assert result["description"] == ""
+
+
+def test_parse_theme_item_succeds():
+    # Arrange
+    theme_item = ET.fromstring("""
+        <theme_item name="font_color" data_type="color" type="Color" default="Color(0.875, 0.875, 0.875, 1)">
+		  Default text [Color] of the [Button].
+		</theme_item>
+    """)
+
+    # Act
+    result = parse_theme_item(theme_item)
+
+    # Assert
+    assert result["name"] == "font_color"
+    assert result["data_type"] == "color"
+    assert result["type"] == "Color"
+    assert result["default"] == "Color(0.875, 0.875, 0.875, 1)"
+    assert result["description"] == "Default text [Color] of the [Button]."
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange

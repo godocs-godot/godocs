@@ -34,6 +34,14 @@ class Enum(TypedDict):
     description: str
 
 
+class ThemeItem(TypedDict):
+    name: str
+    data_type: str
+    type: str
+    default: str
+    description: str
+
+
 type XMLNode = ET.Element[str]
 
 type XMLDoc = ET.ElementTree[XMLNode]

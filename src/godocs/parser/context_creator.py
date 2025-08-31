@@ -1,7 +1,7 @@
 from xml.etree.ElementTree import ElementTree, Element
 import xml.etree.ElementTree as ET
 
-from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal, Enum
+from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal, Enum, ThemeItem
 
 
 def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
@@ -263,22 +263,22 @@ def parse_enum(name: str, values: list[XMLNode]) -> Enum:
     return result
 
 
-# def parse_theme_item(node: Element) -> dict[str, str]:
-#     result = {
-#         "name": '',
-#         "data_type": '',
-#         "type": '',
-#         "default": '',
-#         "description": '',
-#     }
+def parse_theme_item(node: XMLNode) -> ThemeItem:
+    result: ThemeItem = {
+        "name": '',
+        "data_type": '',
+        "type": '',
+        "default": '',
+        "description": '',
+    }
 
-#     result["name"] = node.attrib.get("name", '')
-#     result["data_type"] = node.attrib.get("data_type", '')
-#     result["type"] = node.attrib.get("type", '')
-#     result["default"] = node.attrib.get("default", '')
-#     result["description"] = node.text.strip() if node.text is not None else ''
+    result["name"] = node.attrib.get("name", '')
+    result["data_type"] = node.attrib.get("data_type", '')
+    result["type"] = node.attrib.get("type", '')
+    result["default"] = node.attrib.get("default", '')
+    result["description"] = node.text.strip() if node.text is not None else ''
 
-#     return result
+    return result
 
 
 # def parse_properties(node: Element) -> list[dict[str, str]]:
