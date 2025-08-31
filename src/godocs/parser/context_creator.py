@@ -1,6 +1,3 @@
-from xml.etree.ElementTree import ElementTree, Element
-import xml.etree.ElementTree as ET
-
 from .types import (
     Constant,
     XMLNode,
