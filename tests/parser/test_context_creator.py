@@ -13,6 +13,7 @@ from godocs.parser.context_creator import (
     parse_properties,
     parse_methods,
     parse_signals,
+    parse_constants,
 )
 
 from godocs.parser.types import XMLDoc
@@ -332,6 +333,59 @@ def test_parse_signals_succeeds():
     assert result[1]["args"][0]["type"] == "float"
     assert result[1]["args"][0]["default"] == ""
     assert result[1]["args"][0]["description"] == ""
+
+
+def test_parse_constants_succeeds():
+    # Arrange
+    constants = ET.fromstring("""
+        <constants>
+          <constant name="PI" value="3.14">
+            The value of PI.
+          </constant>
+          <constant name="E" value="2.71">
+            The value of Euler's number.
+          </constant>
+        </constants>
+    """)
+
+    # Act
+    result = parse_constants(constants)
+
+    # Assert
+    assert result[0]["name"] == "PI"
+    assert result[0]["value"] == "3.14"
+    assert result[0]["description"] == "The value of PI."
+    assert result[1]["name"] == "E"
+    assert result[1]["value"] == "2.71"
+    assert result[1]["description"] == "The value of Euler's number."
+
+
+def test_parse_constants_ignores_enums():
+    # Arrange
+    constants = ET.fromstring("""
+        <constants>
+          <constant name="PI" value="3.14">
+            The value of PI.
+          </constant>
+          <constant name="E" value="2.71">
+            The value of Euler's number.
+          </constant>
+          <constant name="ADDITION" value="0" enum="OPERATIONS">
+            The addition operation.
+          </constant>
+          <constant name="SUBTRACTION" value="1" enum="OPERATIONS">
+            The subtraction operation.
+          </constant>
+        </constants>
+    """)
+
+    # Act
+    result = parse_constants(constants)
+
+    # Assert
+    assert len(result) == 2
+    assert result[0]["name"] == "PI"
+    assert result[1]["name"] == "E"
 
 
 # def test_parse_file_invalid_xml(tmp_path: Path):

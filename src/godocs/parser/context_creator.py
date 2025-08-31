@@ -441,18 +441,53 @@ def parse_signals(node: XMLNode) -> list[Signal]:
     return result
 
 
-# def parse_constants(node: Element) -> list[dict[str, str]]:
-#     result = []
+def parse_constants(node: XMLNode) -> list[Constant]:
+    """
+    Parses a node with a list of constants into a list of dicts.
 
-#     for constant in node.findall("constant"):
-#         if constant.text is None or constant.text.strip() == '':
-#             continue
-#         if constant.attrib.get("enum", '') != '':
-#             continue
+    This function ignores the constants that have an enum attribute,
+    which would make them members of an Enum.
 
-#         result.append(parse_constant(constant))
+    For getting members of an Enum, the parse_enums function should be used.
 
-#     return result
+    Constants node structure::
+
+        <constants>
+          <constant name="PI" value="3.14">
+            The value of PI.
+          </constant>
+          <constant name="E" value="2.71">
+            The value of Euler's number.
+          </constant>
+        </constants>
+
+    Return structure::
+
+        result = [
+          {
+            "name": "PI",
+            "value": "3.14",
+            "description": "The value of PI.",
+          },
+          {
+            "name": "E",
+            "value": "2.71",
+            "description": "The value of Euler's number.",
+          },
+        ]
+    """
+
+    result: list[Constant] = []
+
+    for constant in node.findall("constant"):
+        if constant.text is None or constant.text.strip() == '':
+            continue
+        if constant.attrib.get("enum", '') != '':
+            continue
+
+        result.append(parse_constant(constant))
+
+    return result
 
 
 # def parse_enums(node: Element) -> list[dict[str, str]]:
