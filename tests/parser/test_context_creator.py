@@ -11,6 +11,7 @@ from godocs.parser.context_creator import (
     parse_enum,
     parse_theme_item,
     parse_properties,
+    parse_methods,
 )
 
 from godocs.parser.types import XMLDoc
@@ -244,6 +245,52 @@ def test_parse_properties_succeds():
     assert result[1]["type"] == "String"
     assert result[1]["default"] == "null"
     assert result[1]["description"] == "The name of the thinga."
+
+
+def test_parse_methods_succeeds():
+    # Arrange
+    methods = ET.fromstring("""
+        <methods>
+          <method name="add">
+            <return type="int" />
+            <param index="0" name="num1" type="int" />
+            <param index="1" name="num2" type="int" />
+            <description>
+              Adds two numbers.
+            </description>
+          </method>
+          <method name="subtract">
+            <return type="int" />
+            <param index="0" name="num1" type="int" />
+            <param index="1" name="num2" type="int" />
+            <description>
+              Subtracts the second number from the first.
+            </description>
+          </method>
+        </methods>
+    """)
+
+    # Act
+    result = parse_methods(methods)
+
+    # Assert
+    assert result[0]["name"] == "add"
+    assert result[0]["type"] == "int"
+    assert result[0]["description"] == "Adds two numbers."
+    assert len(result[0]["args"]) == 2
+    assert result[0]["args"][0]["name"] == "num1"
+    assert result[0]["args"][0]["type"] == "int"
+    assert result[0]["args"][1]["name"] == "num2"
+    assert result[0]["args"][1]["type"] == "int"
+
+    assert result[1]["name"] == "subtract"
+    assert result[1]["type"] == "int"
+    assert result[1]["description"] == "Subtracts the second number from the first."
+    assert len(result[1]["args"]) == 2
+    assert result[1]["args"][0]["name"] == "num1"
+    assert result[1]["args"][0]["type"] == "int"
+    assert result[1]["args"][1]["name"] == "num2"
+    assert result[1]["args"][1]["type"] == "int"
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange

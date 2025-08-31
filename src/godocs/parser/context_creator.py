@@ -325,18 +325,66 @@ def parse_properties(node: XMLNode) -> list[Property]:
     return result
 
 
-# def parse_methods(node: Element) -> list[dict[str, str]]:
-#     result = []
+def parse_methods(node: XMLNode) -> list[Method]:
+    """
+    Parses a node with a list of methods into a list of dicts.
 
-#     for method in node.findall("method"):
-#         description = method.find("description").text
+    Methods node structure::
 
-#         if description is None or description.strip() == '':
-#             continue
+        <methods>
+          <method name="add">
+            <return type="int" />
+            <param index="0" name="num1" type="int" />
+            <param index="1" name="num2" type="int" />
+            <description>
+              Adds two numbers.
+            </description>
+          </method>
+          <method name="subtract">
+            <return type="int" />
+            <param index="0" name="num1" type="int" />
+            <param index="1" name="num2" type="int" />
+            <description>
+              Subtracts the second number from the first.
+            </description>
+          </method>
+        </methods>
 
-#         result.append(parse_method(method))
+    Return structure::
 
-#     return result
+        result = [
+          {
+            "name": "add",
+            "type": "int",
+            "args": [
+              {"name": "num1", "type": "int", "default": "", "description": ""},
+              {"name": "num2", "type": "int", "default": "", "description": ""},
+            ],
+            "description": "Adds two numbers.",
+          },
+          {
+            "name": "subtract",
+            "type": "int",
+            "args": [
+              {"name": "num1", "type": "int", "default": "", "description": ""},
+              {"name": "num2", "type": "int", "default": "", "description": ""},
+            ],
+            "description": "Subtracts the second number from the first.",
+          },
+        ]
+    """
+
+    result: list[Method] = []
+
+    for method in node.findall("method"):
+        description = method.find("description").text  # type: ignore
+
+        if description is None or description.strip() == '':
+            continue
+
+        result.append(parse_method(method))
+
+    return result
 
 
 # def parse_signals(node: Element) -> list[dict[str, str]]:
