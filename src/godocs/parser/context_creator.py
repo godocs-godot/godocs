@@ -1,7 +1,18 @@
 from xml.etree.ElementTree import ElementTree, Element
 import xml.etree.ElementTree as ET
 
-from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal, Enum, ThemeItem, Class
+from .types import (
+    Constant,
+    XMLNode,
+    XMLDoc,
+    Property,
+    Method,
+    Signal,
+    Enum,
+    ThemeItem,
+    Class,
+    DocContext,
+)
 
 
 def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
@@ -642,21 +653,21 @@ def parse_class(root: XMLNode, docs: list[XMLDoc]) -> Class:
     return result
 
 
-# def create(
-#         docs: list[ElementTree[Element[str]]],
-#         options: dict[str, str] | None = None
-# ) -> dict[str, str]:
-#     if options is None:
-#         options = {}
+def create(
+        docs: list[XMLDoc],
+        options: dict[str, str] | None = None
+) -> DocContext:
+    if options is None:
+        options = {}
 
-#     result = {
-#         "options": options,
-#         "classes": [],
-#     }
+    result: DocContext = {
+        "options": options,
+        "classes": [],
+    }
 
-#     for doc in docs:
-#         root = doc.getroot()
+    for doc in docs:
+        root = doc.getroot()
 
-#         result["classes"].append(parse_class(root, docs))
+        result["classes"].append(parse_class(root, docs))
 
-#     return result
+    return result

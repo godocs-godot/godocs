@@ -55,6 +55,11 @@ class Class(TypedDict):
     theme_items: list[ThemeItem]
 
 
+class DocContext(TypedDict):
+    classes: list[Class]
+    options: dict[str, str]
+
+
 type XMLNode = ET.Element[str]
 
 type XMLDoc = ET.ElementTree[XMLNode]
