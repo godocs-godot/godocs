@@ -1,7 +1,7 @@
 from xml.etree.ElementTree import ElementTree, Element
 import xml.etree.ElementTree as ET
 
-from .types import XMLNode, XMLDoc, Property, Method
+from .types import XMLNode, XMLDoc, Property, Method, Signal
 
 
 def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
@@ -124,21 +124,50 @@ def parse_method(node: XMLNode) -> Method:
     return result
 
 
-# def parse_signal(node: Element) -> dict[str]:
-#     result = {
-#         "name": '',
-#         "args": [],
-#         "description": '',
-#     }
+def parse_signal(node: XMLNode) -> Signal:
+    """
+    Parses a signal node into a dict.
 
-#     result["name"] = node.attrib.get("name", '')
-#     result["description"] = node.find(
-#         "description").text.strip() if node.text is not None else ''
+    Signal node structure::
 
-#     for arg in node.findall("param"):
-#         result["args"].append(parse_property(arg))
+        <signal name="damaged">
+          <param index="0" name="amount" type="float" />
+          <description>
+            Emitted when someone gets damaged.
+          </description>
+        </signal>
 
-#     return result
+    Return structure::
+
+        result = {
+          "name": "damaged",
+          "args": [
+            {
+              "name": "amount",
+              "type": "float",
+              "default": "",
+              "description": "",
+            },
+          ],
+          "description": "Emitted when someone gets damaged.",
+        }
+    """
+
+    result: Signal = {
+        "name": '',
+        "args": [],
+        "description": '',
+    }
+
+    result["name"] = node.attrib.get("name", '')
+    result["description"] = node \
+        .find("description") \
+        .text.strip() if node.text is not None else ''  # type: ignore
+
+    for arg in node.findall("param"):
+        result["args"].append(parse_property(arg))
+
+    return result
 
 
 # def parse_constant(node: Element) -> dict[str, str]:

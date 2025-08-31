@@ -1,7 +1,7 @@
 import pytest
 import xml.etree.ElementTree as ET
 
-from godocs.parser.context_creator import get_class_node, parse_inheritage, parse_property, parse_method
+from godocs.parser.context_creator import get_class_node, parse_inheritage, parse_property, parse_method, parse_signal
 
 from godocs.parser.types import XMLDoc
 
@@ -86,7 +86,7 @@ def test_parse_property_succeds():
     assert result["description"] == "Description"
 
 
-def test_parse_methods_succeds():
+def test_parse_method_succeds():
     # Arrange
     method = ET.fromstring("""
         <method name="add">
@@ -110,6 +110,34 @@ def test_parse_methods_succeds():
     assert result["args"][0]["default"] == ""
     assert result["args"][0]["description"] == ""
     assert result["args"][1]["name"] == "num2"
+    assert result["args"][1]["type"] == "int"
+    assert result["args"][1]["default"] == ""
+    assert result["args"][1]["description"] == ""
+    assert result["description"] == "Description"
+
+
+def test_parse_signal_succeds():
+    # Arrange
+    signal = ET.fromstring("""
+        <signal name="swapped_positions">
+          <param index="0" name="prev" type="int" />
+          <param index="1" name="next" type="int" />
+          <description>
+            Description
+          </description>
+	    </signal>
+    """)
+
+    # Act
+    result = parse_signal(signal)
+
+    # Assert
+    assert result["name"] == "swapped_positions"
+    assert result["args"][0]["name"] == "prev"
+    assert result["args"][0]["type"] == "int"
+    assert result["args"][0]["default"] == ""
+    assert result["args"][0]["description"] == ""
+    assert result["args"][1]["name"] == "next"
     assert result["args"][1]["type"] == "int"
     assert result["args"][1]["default"] == ""
     assert result["args"][1]["description"] == ""

@@ -16,6 +16,12 @@ class Method(TypedDict):
     description: str
 
 
+class Signal(TypedDict):
+    name: str
+    args: list[Property]
+    description: str
+
+
 type XMLNode = ET.Element[str]
 
 type XMLDoc = ET.ElementTree[XMLNode]
