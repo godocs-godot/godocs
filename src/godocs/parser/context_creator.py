@@ -387,18 +387,58 @@ def parse_methods(node: XMLNode) -> list[Method]:
     return result
 
 
-# def parse_signals(node: Element) -> list[dict[str, str]]:
-#     result = []
+def parse_signals(node: XMLNode) -> list[Signal]:
+    """
+    Parses a node with a list of signals into a list of dicts.
 
-#     for signal in node.findall("signal"):
-#         description = signal.find("description").text
+    Signals node structure::
 
-#         if description is None or description.strip() == '':
-#             continue
+        <signals>
+          <signal name="damaged">
+            <param index="0" name="amount" type="float" />
+            <description>
+              Emitted when someone gets damaged.
+            </description>
+          </signal>
+          <signal name="healed">
+            <param index="0" name="amount" type="float" />
+            <description>
+              Emitted when someone gets healed.
+            </description>
+          </signal>
+        </signals>
 
-#         result.append(parse_signal(signal))
+    Return structure::
 
-#     return result
+        result = [
+          {
+            "name": "damaged",
+            "args": [
+              {"name": "amount", "type": "float", "default": "", "description": ""},
+            ],
+            "description": "Emitted when someone gets damaged.",
+          },
+          {
+            "name": "healed",
+            "args": [
+              {"name": "amount", "type": "float", "default": "", "description": ""},
+            ],
+            "description": "Emitted when someone gets healed.",
+          },
+        ]
+    """
+
+    result: list[Signal] = []
+
+    for signal in node.findall("signal"):
+        description = signal.find("description").text  # type: ignore
+
+        if description is None or description.strip() == '':
+            continue
+
+        result.append(parse_signal(signal))
+
+    return result
 
 
 # def parse_constants(node: Element) -> list[dict[str, str]]:

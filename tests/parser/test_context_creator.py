@@ -12,6 +12,7 @@ from godocs.parser.context_creator import (
     parse_theme_item,
     parse_properties,
     parse_methods,
+    parse_signals,
 )
 
 from godocs.parser.types import XMLDoc
@@ -291,6 +292,47 @@ def test_parse_methods_succeeds():
     assert result[1]["args"][0]["type"] == "int"
     assert result[1]["args"][1]["name"] == "num2"
     assert result[1]["args"][1]["type"] == "int"
+
+
+def test_parse_signals_succeeds():
+    # Arrange
+    signals = ET.fromstring("""
+        <signals>
+          <signal name="damaged">
+            <param index="0" name="amount" type="float" />
+            <description>
+              Emitted when someone gets damaged.
+            </description>
+          </signal>
+          <signal name="healed">
+            <param index="0" name="amount" type="float" />
+            <description>
+              Emitted when someone gets healed.
+            </description>
+          </signal>
+        </signals>
+    """)
+
+    # Act
+    result = parse_signals(signals)
+
+    # Assert
+    assert result[0]["name"] == "damaged"
+    assert result[0]["description"] == "Emitted when someone gets damaged."
+    assert len(result[0]["args"]) == 1
+    assert result[0]["args"][0]["name"] == "amount"
+    assert result[0]["args"][0]["type"] == "float"
+    assert result[0]["args"][0]["default"] == ""
+    assert result[0]["args"][0]["description"] == ""
+
+    assert result[1]["name"] == "healed"
+    assert result[1]["description"] == "Emitted when someone gets healed."
+    assert len(result[1]["args"]) == 1
+    assert result[1]["args"][0]["name"] == "amount"
+    assert result[1]["args"][0]["type"] == "float"
+    assert result[1]["args"][0]["default"] == ""
+    assert result[1]["args"][0]["description"] == ""
+
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange
