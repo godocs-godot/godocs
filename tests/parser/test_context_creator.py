@@ -1,4 +1,3 @@
-import pytest
 import xml.etree.ElementTree as ET
 
 from godocs.parser.context_creator import (
