@@ -42,6 +42,19 @@ class ThemeItem(TypedDict):
     description: str
 
 
+class Class(TypedDict):
+    name: str
+    inheritage: list[str]
+    brief_description: str
+    description: str
+    properties: list[Property]
+    methods: list[Method]
+    signals: list[Signal]
+    constants: list[Constant]
+    enums: list[Enum]
+    theme_items: list[ThemeItem]
+
+
 type XMLNode = ET.Element[str]
 
 type XMLDoc = ET.ElementTree[XMLNode]

@@ -16,6 +16,7 @@ from godocs.parser.context_creator import (
     parse_constants,
     parse_enums,
     parse_theme_items,
+    parse_class,
 )
 
 from godocs.parser.types import XMLDoc
@@ -453,6 +454,80 @@ def test_parse_theme_items_succeeds():
     assert result[1]["default"] == "14"
     assert result[1]["description"] == "The default font size."
 
+
+def test_parse_class_succeds():
+    # Arrange
+    class_xml: XMLDoc = ET.ElementTree(ET.fromstring("""
+        <class name="FakeClass" inherits="Reference" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+          <brief_description>
+            A fake class for parser testing.
+          </brief_description>
+          <description>
+            This class is only used to test the XML parser for different node types.
+          </description>
+          <tutorials>
+          </tutorials>
+  
+          <methods>
+            <method name="do_something">
+            <return type="void" />
+            <param index="0" name="value" type="int" />
+            <description>
+              Does something with a value.
+            </description>
+            </method>
+          </methods>
+  
+          <members>
+            <member name="enabled" type="bool" default="true">
+            Whether the class is enabled.
+            </member>
+          </members>
+  
+          <signals>
+            <signal name="changed">
+            <param index="0" name="what" type="String" />
+            <description>
+              Emitted when something changes.
+            </description>
+            </signal>
+          </signals>
+  
+          <constants>
+            <constant name="VERSION" value="1">
+              Version number of this class.
+            </constant>
+            <constant name="STATE" value="0" enum="StateMachine">
+              Enum member for class state.
+            </constant>
+          </constants>
+  
+          <theme_items>
+            <theme_item name="font_color" data_type="color" type="Color" default="black">
+              The default font color.
+            </theme_item>
+          </theme_items>
+        </class>
+    """))
+
+    # Act
+    result = parse_class(class_xml.getroot(), [class_xml])
+
+    assert result["name"] == "FakeClass"
+    assert result["brief_description"] == "A fake class for parser testing."
+    assert result["description"] == "This class is only used to test the XML parser for different node types."
+    assert len(result["methods"]) == 1
+    assert result["methods"][0]["name"] == "do_something"
+    assert len(result["properties"]) == 1
+    assert result["properties"][0]["name"] == "enabled"
+    assert len(result["signals"]) == 1
+    assert result["signals"][0]["name"] == "changed"
+    assert len(result["constants"]) == 1
+    assert result["constants"][0]["name"] == "VERSION"
+    assert len(result["enums"]) == 1
+    assert result["enums"][0]["name"] == "StateMachine"
+    assert len(result["theme_items"]) == 1
+    assert result["theme_items"][0]["name"] == "font_color"
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange

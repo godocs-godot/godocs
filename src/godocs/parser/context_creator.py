@@ -1,7 +1,7 @@
 from xml.etree.ElementTree import ElementTree, Element
 import xml.etree.ElementTree as ET
 
-from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal, Enum, ThemeItem
+from .types import Constant, XMLNode, XMLDoc, Property, Method, Signal, Enum, ThemeItem, Class
 
 
 def get_class_node(class_name: str, docs: list[XMLDoc]) -> XMLNode | None:
@@ -603,38 +603,43 @@ def parse_theme_items(node: XMLNode) -> list[ThemeItem]:
     return result
 
 
-# def parse_class(root: Element, docs: list[ElementTree]) -> dict[str]:
-#     result = {
-#         "name": '',
-#         "inheritage": [],
-#         "brief_description": '',
-#         "description": '',
-#         "properties": [],
-#         "methods": [],
-#         "signals": [],
-#         "constants": [],
-#         "enums": [],
-#         "theme_items": [],
-#     }
+def parse_class(root: XMLNode, docs: list[XMLDoc]) -> Class:
+    """
 
-#     result["name"] = root.attrib.get("name", '')
-#     result["inheritage"] = parse_inheritage(root, docs)
+    """
 
-#     for node in root:
-#         match node.tag:
-#             case "members": result["properties"] = parse_properties(node)
-#             continue
-#             case "methods": result["methods"] = parse_methods(node)
-#             continue
-#             case "signals": result["signals"] = parse_signals(node)
-#             continue
-#             case "constants":
-#                 result["constants"] = parse_constants(node)
-#                 result["enums"] = parse_enums(node)
-#                 continue
-#             case "theme_items": result["theme_items"] = parse_theme_items(node)
+    result: Class = {
+        "name": '',
+        "inheritage": [],
+        "brief_description": '',
+        "description": '',
+        "properties": [],
+        "methods": [],
+        "signals": [],
+        "constants": [],
+        "enums": [],
+        "theme_items": [],
+    }
 
-#     return result
+    result["name"] = root.attrib.get("name", '')
+    result["inheritage"] = parse_inheritage(root, docs)
+    result["brief_description"] = root \
+        .find("brief_description").text.strip()  # type: ignore
+    result["description"] = root \
+        .find("description").text.strip()  # type: ignore
+
+    for node in root:
+        match node.tag:
+            case "members": result["properties"] = parse_properties(node)
+            case "methods": result["methods"] = parse_methods(node)
+            case "signals": result["signals"] = parse_signals(node)
+            case "constants":
+                result["constants"] = parse_constants(node)
+                result["enums"] = parse_enums(node)
+            case "theme_items": result["theme_items"] = parse_theme_items(node)
+            case _: pass
+
+    return result
 
 
 # def create(
