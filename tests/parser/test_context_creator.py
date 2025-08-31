@@ -14,6 +14,7 @@ from godocs.parser.context_creator import (
     parse_methods,
     parse_signals,
     parse_constants,
+    parse_enums,
 )
 
 from godocs.parser.types import XMLDoc
@@ -386,6 +387,40 @@ def test_parse_constants_ignores_enums():
     assert len(result) == 2
     assert result[0]["name"] == "PI"
     assert result[1]["name"] == "E"
+
+
+def test_parse_enums_ignores_constants():
+    # Arrange
+    constants = ET.fromstring("""
+        <constants>
+          <constant name="PI" value="3.14">
+            The value of PI.
+          </constant>
+          <constant name="E" value="2.71">
+            The value of Euler's number.
+          </constant>
+          <constant name="ADDITION" value="0" enum="Operation">
+            The addition operation.
+          </constant>
+          <constant name="SUBTRACTION" value="1" enum="Operation">
+            The subtraction operation.
+          </constant>
+        </constants>
+    """)
+
+    # Act
+    result = parse_enums(constants)
+
+    # Assert
+    assert len(result) == 1
+    assert result[0]["name"] == "Operation"
+    assert len(result[0]["values"]) == 2
+    assert result[0]["values"][0]["name"] == "ADDITION"
+    assert result[0]["values"][0]["value"] == "0"
+    assert result[0]["values"][0]["description"] == "The addition operation."
+    assert result[0]["values"][1]["name"] == "SUBTRACTION"
+    assert result[0]["values"][1]["value"] == "1"
+    assert result[0]["values"][1]["description"] == "The subtraction operation."
 
 
 # def test_parse_file_invalid_xml(tmp_path: Path):

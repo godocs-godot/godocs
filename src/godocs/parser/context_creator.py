@@ -490,30 +490,71 @@ def parse_constants(node: XMLNode) -> list[Constant]:
     return result
 
 
-# def parse_enums(node: Element) -> list[dict[str, str]]:
-#     result = []
+def parse_enums(node: XMLNode) -> list[Enum]:
+    """
+    Parses a node with a list of constants into a list of enums.
 
-#     enums = {}
+    This function ignores the constants that don't have an enum attribute,
+    which would make them just constants without an enum.
 
-#     for constant in node.findall("constant"):
-#         enum_name = constant.attrib.get("enum", '')
+    For getting the solely constants, the parse_constants function should be used.
 
-#         if constant.text is None or constant.text.strip() == '':
-#             continue
-#         if enum_name == '':
-#             continue
+    Constants node structure::
 
-#         if enums.get(enum_name) is None:
-#             enums[enum_name] = []
+        <constants>
+          <constant name="ADDITION" value="0" enum="Operation">
+            The addition operation.
+          </constant>
+          <constant name="SUBTRACTION" value="1" enum="Operation">
+            The subtraction operation.
+          </constant>
+        </constants>
 
-#         enums[enum_name].append(constant)
+    Return structure::
 
-#     for enum in enums:
-#         values = enums[enum]
+        result = [
+          {
+            "name": "Operation",
+            "values": [
+              {
+                "name": "ADDITION",
+                "value": "0",
+                "description": "The addition operation.",
+              },
+              {
+                "name": "SUBTRACTION",
+                "value": "1",
+                "description": "The subtraction operation.",
+              },
+            ],
+            "description": "",
+          }
+        ]
+    """
 
-#         result.append(parse_enum(enum, values))
+    result: list[Enum] = []
 
-#     return result
+    enums: dict[str, list[XMLNode]] = {}
+
+    for constant in node.findall("constant"):
+        enum_name = constant.attrib.get("enum", '')
+
+        if enum_name == '':
+            continue
+        if constant.text is None or constant.text.strip() == '':
+            continue
+
+        if enums.get(enum_name) is None:
+            enums[enum_name] = []
+
+        enums[enum_name].append(constant)
+
+    for enum in enums:
+        values = enums[enum]
+
+        result.append(parse_enum(enum, values))
+
+    return result
 
 
 # def parse_theme_items(node: Element) -> list[dict[str, str]]:
