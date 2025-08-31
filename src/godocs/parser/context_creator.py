@@ -281,16 +281,48 @@ def parse_theme_item(node: XMLNode) -> ThemeItem:
     return result
 
 
-# def parse_properties(node: Element) -> list[dict[str, str]]:
-#     result = []
+def parse_properties(node: XMLNode) -> list[Property]:
+    """
+    Parses a node with a list of properties into a dict.
 
-#     for property in node:
-#         if property.text is None or property.text.strip() == '':
-#             continue
+    Properties node structure::
 
-#         result.append(parse_property(property))
+        <members>
+          <member name="color" type="Color" setter="set_color" getter="get_color" default="null">
+            A thinga with color and name.
+          </member>
+          <member name="name" type="String" setter="set_name" getter="get_name" default="null">
+            The name of the thinga.
+          </member>
+        </members>
 
-#     return result
+    Return structure::
+
+        result = [
+          {
+            "name": "color",
+            "type": "Color",
+            "default": "null",
+            "description": "A thinga with color and name.",
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "default": "null",
+            "description": "The name of the thinga.",
+          },
+        ]
+    """
+
+    result: list[Property] = []
+
+    for property in node:
+        if property.text is None or property.text.strip() == '':
+            continue
+
+        result.append(parse_property(property))
+
+    return result
 
 
 # def parse_methods(node: Element) -> list[dict[str, str]]:

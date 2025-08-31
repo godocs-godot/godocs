@@ -10,6 +10,7 @@ from godocs.parser.context_creator import (
     parse_constant,
     parse_enum,
     parse_theme_item,
+    parse_properties,
 )
 
 from godocs.parser.types import XMLDoc
@@ -216,6 +217,33 @@ def test_parse_theme_item_succeds():
     assert result["type"] == "Color"
     assert result["default"] == "Color(0.875, 0.875, 0.875, 1)"
     assert result["description"] == "Default text [Color] of the [Button]."
+
+
+def test_parse_properties_succeds():
+    # Arrange
+    properties = ET.fromstring("""
+        <members>
+          <member name="color" type="Color" setter="set_color" getter="get_color" default="null">
+            A thinga with color and name.
+          </member>
+          <member name="name" type="String" setter="set_name" getter="get_name" default="null">
+            The name of the thinga.
+          </member>
+        </members>
+    """)
+
+    # Act
+    result = parse_properties(properties)
+
+    # Assert
+    assert result[0]["name"] == "color"
+    assert result[0]["type"] == "Color"
+    assert result[0]["default"] == "null"
+    assert result[0]["description"] == "A thinga with color and name."
+    assert result[1]["name"] == "name"
+    assert result[1]["type"] == "String"
+    assert result[1]["default"] == "null"
+    assert result[1]["description"] == "The name of the thinga."
 
 # def test_parse_file_invalid_xml(tmp_path: Path):
 #     # Arrange
