@@ -106,7 +106,7 @@ class RSTSyntaxTranslator(SyntaxTranslator):
             case "root": return content
             case "bold": return f"**{content}**"
             case "newline": return f"\n"
-            case "italics": return f"*{content}*"
+            case "italic": return f"*{content}*"
             case "paragraph": return content
             case "code": return f"``{content}``"
             case "codeblock": return self.make_codeblock(
