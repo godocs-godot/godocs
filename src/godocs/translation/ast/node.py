@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
-from godocs.translation.translator import SyntaxTranslator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from godocs.translation.translator import SyntaxTranslator
 
 
 class Node(ABC):
@@ -12,7 +15,7 @@ class Node(ABC):
     """
 
     @abstractmethod
-    def translate(self, translator: SyntaxTranslator) -> str:
+    def translate(self, translator: "SyntaxTranslator") -> str:
         """
         Abstract method to translate this `Node` using a given `translator`.
         """

@@ -1,10 +1,13 @@
 from functools import reduce
 from textwrap import indent
 import re
+from typing import TYPE_CHECKING
 
 from godocs.translation.translator.syntax_translator import SyntaxTranslator
-from godocs.translation import ast
 # from godocs.constructor.jinja_constructor.rst.filters import make_code_member_ref
+
+if TYPE_CHECKING:
+    from godocs.translation import ast
 
 
 def normalize_code_member(name: str) -> str:
@@ -87,10 +90,10 @@ class RSTSyntaxTranslator(SyntaxTranslator):
     def make_codeblock(self, content: str, language: str = '') -> str:
         return self.make_directive("codeblock", [language], {}, content)
 
-    def translate_text(self, node: ast.TextNode) -> str:
+    def translate_text(self, node: "ast.TextNode") -> str:
         return node.content
 
-    def translate_tag(self, node: ast.TagNode) -> str:
+    def translate_tag(self, node: "ast.TagNode") -> str:
         # First of all, translates the children of the node received.
         content = reduce(
             lambda prev, next: prev + next.translate(self),

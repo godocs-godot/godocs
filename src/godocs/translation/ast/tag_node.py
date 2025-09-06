@@ -1,7 +1,10 @@
 from textwrap import indent
+from typing import TYPE_CHECKING
 
 from .node import Node
-from godocs.translation.translator import SyntaxTranslator
+
+if TYPE_CHECKING:
+    from godocs.translation.translator import SyntaxTranslator
 
 
 class TagNode(Node):
@@ -29,7 +32,7 @@ class TagNode(Node):
         self.children = children
         self.params = params
 
-    def translate(self, translator: SyntaxTranslator) -> str:
+    def translate(self, translator: "SyntaxTranslator") -> str:
         return translator.translate_tag(self)
 
     def stringify_params(self) -> str:

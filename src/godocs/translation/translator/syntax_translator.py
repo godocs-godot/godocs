@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from godocs.translation import ast
+if TYPE_CHECKING:
+    from godocs.translation import ast
 
 
 class SyntaxTranslator(ABC):
@@ -15,7 +17,7 @@ class SyntaxTranslator(ABC):
     """
 
     @abstractmethod
-    def translate_text(self, node: ast.TextNode) -> str:
+    def translate_text(self, node: "ast.TextNode") -> str:
         """
         Abstract method to translate a `TextNode` into its string representation.
         """
@@ -23,7 +25,7 @@ class SyntaxTranslator(ABC):
         pass
 
     @abstractmethod
-    def translate_tag(self, node: ast.TagNode) -> str:
+    def translate_tag(self, node: "ast.TagNode") -> str:
         """
         Abstract method to translate a `TagNode` into its string representation.
         """

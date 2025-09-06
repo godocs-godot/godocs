@@ -1,5 +1,8 @@
 from .node import Node
-from godocs.translation.translator import SyntaxTranslator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from godocs.translation.translator import SyntaxTranslator
 
 
 class TextNode(Node):
@@ -14,7 +17,7 @@ class TextNode(Node):
     def __init__(self, content: str):
         self.content = content
 
-    def translate(self, translator: SyntaxTranslator) -> str:
+    def translate(self, translator: "SyntaxTranslator") -> str:
         """
         Translates this `TextNode` into a `string` using the provided `SyntaxTranslator`.
         """
