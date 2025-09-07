@@ -1,17 +1,7 @@
 from textwrap import dedent
 import re
 
-from godocs.translation.ast import TagNode, TextNode
-
 from godocs.translation.interpreter import BBCodeInterpreter as Interpreter
-
-# [b]bold text[/b]
-# [url=https://github.com/nadjiel]nadjiel[/url]
-# [color=red]red text[/color]
-# [img width=32]res://icon.svg[/img]
-# [br]
-# [member color]
-# [operator Color.operator *]
 
 
 def test_bbcode_interpreter_parse_options_maps_default_option():
@@ -614,7 +604,7 @@ def test_bbcode_interpreter_parse_element_understands_codeblock():
 	""").strip()
 
 
-def test_bbcode_interpreter_parses_text():
+def test_bbcode_interpreter_interpret_understands_simple_text():
     # Arrange
     text = "Hello, World!"
 
@@ -631,163 +621,85 @@ def test_bbcode_interpreter_parses_text():
 	""").strip()
 
 
-# def test_bbcode_interpreter_parses_tag_bold():
-#     # Arrange
-#     text = "[b]Hello, World![/b]"
+def test_bbcode_interpreter_interpret_understands_empty_string():
+    # Arrange
+    text = ""
 
-#     interpreter = Interpreter()
+    interpreter = Interpreter()
 
-#     # Act
-#     ast = interpreter.interpret(text)
+    # Act
+    ast = interpreter.interpret(text)
 
-#     print((str(ast)))
-#     print(repr(dedent("""
-# 		<root
-# 			<bold
-# 				"Hello, World!"
-# 			>
-# 		>
-# 	""").strip()))
-
-#     # Assert
-#     assert str(ast) == dedent("""
-# 		<root
-# 			<bold
-# 				"Hello, World!"
-# 			>
-# 		>
-# 	""").strip()
+    assert str(ast) == dedent("""
+		<root
+			""
+		>
+	""").strip()
 
 
-# def test_rst_syntax_translator_translates_tag_bold():
-#     # Arrange
-#     text = TextNode("Hello, World!")
-#     bold = TagNode("bold", [text])
+def test_bbcode_interpreter_interpret_understands_bold():
+    # Arrange
+    text = "[b]Hello, World![/b]"
 
-#     translator = Translator()
+    interpreter = Interpreter()
 
-#     # Act
-#     rst = translator.translate_tag(bold)
+    # Act
+    ast = interpreter.interpret(text)
 
-#     # Assert
-#     assert rst == "**Hello, World!**"
-
-
-# def test_rst_syntax_translator_translates_tag_newline():
-#     # Arrange
-#     newline = TagNode("newline")
-
-#     translator = Translator()
-
-#     # Act
-#     rst = translator.translate_tag(newline)
-
-#     # Assert
-#     assert rst == "\n"
+    assert str(ast) == dedent("""
+		<root
+			<bold
+				"Hello, World!"
+			>
+		>
+	""").strip()
 
 
-# def test_rst_syntax_translator_translates_tag_italics():
-#     # Arrange
-#     text = TextNode("Hello, World!")
-#     italic = TagNode("italic", [text])
+def test_bbcode_interpreter_interpret_understands_sibling_tags():
+    # Arrange
+    text = "Start Text [b]Bold[/b] [i]Italic[/i] End Text"
 
-#     translator = Translator()
+    interpreter = Interpreter()
 
-#     # Act
-#     rst = translator.translate_tag(italic)
+    # Act
+    ast = interpreter.interpret(text)
 
-#     # Assert
-#     assert rst == "*Hello, World!*"
-
-
-# def test_rst_syntax_translator_translates_tag_paragraph():
-#     # Arrange
-#     text = TextNode("Hello, World!")
-#     paragraph = TagNode("paragraph", [text])
-
-#     translator = Translator()
-
-#     # Act
-#     rst = translator.translate_tag(paragraph)
-
-#     # Assert
-#     assert rst == "Hello, World!"
+    assert str(ast) == dedent("""
+		<root
+			"Start Text ",
+			<bold
+				"Bold"
+			>,
+			" ",
+			<italic
+				"Italic"
+			>,
+			" End Text"
+		>
+	""").strip()
 
 
-# def test_rst_syntax_translator_translates_tag_code():
-#     # Arrange
-#     text = TextNode("Hello, World!")
-#     code = TagNode("code", [text])
+def test_bbcode_interpreter_interpret_understands_nested_tags():
+    # Arrange
+    text = "[b]Wrapper [i]Inner Wrapper [u]Inner Text[/u] Text[/i] Text[/b]"
 
-#     translator = Translator()
+    interpreter = Interpreter()
 
-#     # Act
-#     rst = translator.translate_tag(code)
+    # Act
+    ast = interpreter.interpret(text)
 
-#     # Assert
-#     assert rst == "``Hello, World!``"
-
-
-# def test_rst_syntax_translator_translates_tag_codeblock():
-#     # Arrange
-#     text = TextNode("Hello, World!")
-#     codeblock = TagNode("codeblock", [text])
-
-#     translator = Translator()
-
-#     # Act
-#     rst = translator.translate_tag(codeblock)
-
-#     # Assert
-#     assert rst == dedent("""
-#     .. codeblock::
-
-#        Hello, World!
-#     """).strip()
-
-
-# def test_rst_syntax_translator_translates_tag_codeblock_with_language():
-#     # Arrange
-#     text = TextNode("Hello, World!")
-#     codeblock = TagNode("codeblock", [text], {"language": "python"})
-
-#     translator = Translator()
-
-#     # Act
-#     rst = translator.translate_tag(codeblock)
-
-#     # Assert
-#     assert rst == dedent("""
-#     .. codeblock:: python
-
-#        Hello, World!
-#     """).strip()
-
-
-# def test_rst_syntax_translator_translates_tag_link():
-#     # Arrange
-#     text = TextNode("Godocs")
-#     link = TagNode("link", [text], {
-#                    "url": "https://github.com/godocs-godot/godocs"})
-
-#     translator = Translator()
-
-#     # Act
-#     rst = translator.translate_tag(link)
-
-#     # Assert
-#     assert rst == "Godocs <https://github.com/godocs-godot/godocs>_"
-
-
-# def test_rst_syntax_translator_translates_reference():
-#     # Arrange
-#     text = TextNode("Godocs")
-#     link = TagNode("reference", [text], {"name": "RSTSyntaxTranslator"})
-
-#     translator = Translator()
-
-#     # Act
-#     rst = translator.translate_tag(link)
-
-#     # Assert
-#     assert rst == ":ref:`RSTSyntaxTranslator <RSTSyntaxTranslator>`"
+    assert str(ast) == dedent("""
+		<root
+			<bold
+				"Wrapper ",
+				<italic
+					"Inner Wrapper ",
+					<underline
+						"Inner Text"
+					>,
+					" Text"
+				>,
+				" Text"
+			>
+		>
+	""").strip()
