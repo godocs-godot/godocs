@@ -13,25 +13,15 @@ class TagOptions(TypedDict):
 class BBCodeInterpreter(Interpreter):
     """
     `BBCodeInterpreter` is a specialized class that parses `BBCode`
-    markup into an abstract syntax tree (AST) representation.
+    markup from Godot docs into an abstract syntax tree (AST) representation.
 
-    Here's a list of tags this interpreter supports:
-    - [b][/b] -> ``
-    - [i][/i] -> ``
-    - [u][/u] -> ``
+    To know the list of tags this interpreter supports see the `parse_tag`
+    and `parse_element` methods.
 
-    This interpreter supports a variety of `BBCode` tags,
-    including formatting tags (e.g., [b], [i], [u]),
-    reference tags (e.g., [class], [method]), and special tags
-    (e.g., [br], [img], [url]).
-
-    It converts recognized tags into corresponding AST nodes,
-    handling both standalone and nested tags, and supports
-    parsing of tag options and parameters.
+    The conversion realized by this class takes into account both standalone
+    and nested tags, and supports parsing of tag options and parameters.
 
     Methods:
-      interpret(text: str) -> ast.TagNode:
-        Parses the input BBCode text and returns the root AST node.
       parse_options(options: str) -> dict:
         Parses the options string from a BBCode tag and returns a dictionary with 'list' and 'map' keys for positional and key-value options.
       parse_reference_tag(el_match: re.Match[str]) -> ast.TagNode:
@@ -47,43 +37,53 @@ class BBCodeInterpreter(Interpreter):
     """
 
     el_regex = r"\[(?P<name>\w+)(?P<options>[\S\s]*?)\](?:(?P<content>[\S\s]*?)\[(?P<closing>\/)\1\])?"
+    """
+    A regex for capturing `BBCode` element or tags and capturing important information such as
+    their `name`, `options`, `content` and `closing` tag.
+    """
 
     def interpret(self, text: str) -> ast.TagNode:
+        """
+        Parses the input `BBCode` text into an Abstract Syntax Tree
+        with a root `TagNode`.
+        """
+
         return self.parse_text(text)
 
     def parse_options(self, options: str) -> TagOptions:
         """
         Parses a string with the options of a `BBCode` tag and
         returns a `TagOptions` dictionary separating those options
-        in a `"list"` and a `"map"`.
+        into a `"list"` (for positional options) and a
+        `"map"` (for key-value options).
 
-        Examples::
+        Examples:
 
             parse_options("=https://github.com/nadjiel")
-            # Would return:
-            { 
-                "list": [],
-                "map": {
-                    "": "=https://github.com/nadjiel"
-                }
-            }
+            # Returns:
+            # {
+            #     "list": [],
+            #     "map": {
+            #         "": "=https://github.com/nadjiel"
+            #     }
+            # }
 
             parse_options(" width=32 height=16")
-            # Would return:
-            { 
-                "list": [],
-                "map": {
-                    "width": "32",
-                    "height": "16"
-                }
-            }
+            # Returns:
+            # {
+            #     "list": [],
+            #     "map": {
+            #         "width": "32",
+            #         "height": "16"
+            #     }
+            # }
 
             parse_options(" Color.operator *")
-            # Would return:
-            { 
-                "list": [ "Color.operator", "*" ],
-                "map": {}
-            }
+            # Returns:
+            # {
+            #     "list": ["Color.operator", "*"],
+            #     "map": {}
+            # }
         """
 
         result: TagOptions = {
@@ -111,6 +111,28 @@ class BBCodeInterpreter(Interpreter):
         return result
 
     def parse_reference_tag(self, el_match: re.Match[str]) -> ast.TagNode:
+        """
+        Parses a regex match of a text with a `BBCode`
+        tag referencing some documentation member and returns
+        its equivalent in an AST `Node`.
+
+        This method interprets the following tags:
+        - `[annotation]`
+        - `[constant]`
+        - `[enum]`
+        - `[member]`
+        - `[method]`
+        - `[constructor]`
+        - `[operator]`
+        - `[signal]`
+        - `[theme_item]`
+        - `[param]`
+        - `[<Class>]`
+
+        The returned `TagNode` follows the protocol described in the
+        `ast.Node` documentation.
+        """
+
         name = el_match.group("name")
         options = el_match.group("options")
 
@@ -164,7 +186,9 @@ class BBCodeInterpreter(Interpreter):
         not full elements.
 
         With that said, the only such tags
-        are the `[br]`, the `[lb]` and the `[rb]`.
+        are the `[br]`, the `[lb]` and the `[rb]`,
+        which are converted to the more suitable `Node`
+        dependeing on the AST protocol.
 
         For full elements, see `parse_element`.
         """
@@ -190,21 +214,22 @@ class BBCodeInterpreter(Interpreter):
         an Abstract Syntax Tree `Node`.
 
         This method currently understands the following elements:
-        - `[b][/b]`
-        - `[i][/i]`
-        - `[u][/u]`
-        - `[s][/s]`
-        - `[color][/color]`
-        - `[font][/font]`
-        - `[img][/img]`
-        - `[url][/url]`
-        - `[center][/center]`
-        - `[kbd][/kbd]`
-        - `[code][/code]`
-        - `[codeblock][/codeblock]`
+        - `[b]`
+        - `[i]`
+        - `[u]`
+        - `[s]`
+        - `[color]`
+        - `[font]`
+        - `[img]`
+        - `[url]`
+        - `[center]`
+        - `[kbd]`
+        - `[code]`
+        - `[codeblock]`
 
         Not counting these, this method also interprets the standalone tags
-        supported by the `parse_tag` method.
+        supported by the `parse_tag` method, if the passed `el_match`
+        doesn't represent a full element.
         """
 
         # If the match doesn't have a closing tag, it is a standalone tag.
@@ -272,6 +297,17 @@ class BBCodeInterpreter(Interpreter):
         text: str,
         root: ast.TagNode | None = None,
     ) -> ast.TagNode:
+        """
+        Parses a `BBCode` text into an Abstract Syntax Tree, with
+        its topmost `Node` being a wrapper `"root"` element.
+
+        To know more about the supported nodes, see the `parse_element`
+        and `parse_tag` methods.
+
+        To understand how is the structure of the generated AST, see
+        the protocol in the `ast.Node` documentation.
+        """
+
         if root is None:
             root = ast.TagNode("root")
 
