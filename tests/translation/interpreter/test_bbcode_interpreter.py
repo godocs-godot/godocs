@@ -248,6 +248,372 @@ def test_bbcode_interpreter_parse_reference_tag_understands_class():
     assert str(ast) == "<reference type=class, name=Class>"
 
 
+def test_bbcode_interpreter_parse_tag_understands_line_break():
+    # Arrange
+    reference = "[br]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_tag(reference_match)
+
+    # Assert
+    assert str(ast) == "<newline>"
+
+
+def test_bbcode_interpreter_parse_tag_understands_left_square_bracket():
+    # Arrange
+    reference = "[lb]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_tag(reference_match)
+
+    # Assert
+    assert str(ast) == '"["'
+
+
+def test_bbcode_interpreter_parse_tag_understands_right_square_bracket():
+    # Arrange
+    reference = "[rb]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_tag(reference_match)
+
+    # Assert
+    assert str(ast) == '"]"'
+
+
+# def test_bbcode_interpreter_parse_element_understands_paragraph():
+#     # Arrange
+#     reference = "[p]text[/p]"
+
+#     interpreter = Interpreter()
+
+#     reference_match = re.match(interpreter.el_regex, reference)
+
+#     assert reference_match is not None
+
+#     # Act
+#     ast = interpreter.parse_element(reference_match)
+
+#     # Assert
+#     assert str(ast) == dedent("""
+# 		<paragraph
+# 			"text"
+# 		>
+# 	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_bold():
+    # Arrange
+    reference = "[b]text[/b]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<bold
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_italic():
+    # Arrange
+    reference = "[i]text[/i]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<italic
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_underline():
+    # Arrange
+    reference = "[u]text[/u]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<underline
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_strikethrough():
+    # Arrange
+    reference = "[s]text[/s]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<strikethrough
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_color():
+    # Arrange
+    reference = "[color=red]text[/color]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<color value=red
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_font():
+    # Arrange
+    reference = "[font=res://mono.ttf]text[/font]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<font url=res://mono.ttf
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_image():
+    # Arrange
+    reference = "[img width=32]text[/img]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<image width=32
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_link_without_url():
+    # Arrange
+    reference = "[url]https://github.com/nadjiel[/url]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<link url=https://github.com/nadjiel
+			"https://github.com/nadjiel"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_link():
+    # Arrange
+    reference = "[url=https://github.com/nadjiel]nadjiel[/url]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<link url=https://github.com/nadjiel
+			"nadjiel"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_center():
+    # Arrange
+    reference = "[center]text[/center]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<alignment x=center
+			"text"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_keyboard():
+    # Arrange
+    reference = "[kbd]Ctrl + C[/kbd]"
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<keyboard
+			"Ctrl + C"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_code():
+    # Arrange
+    reference = '[code]print("Hello, world!")[/code]'
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<code
+			"print("Hello, world!")"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_codeblock_without_language():
+    # Arrange
+    reference = '[codeblock]print("Hello, world!")[/codeblock]'
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<codeblock language=
+			"print("Hello, world!")"
+		>
+	""").strip()
+
+
+def test_bbcode_interpreter_parse_element_understands_codeblock():
+    # Arrange
+    reference = '[codeblock lang=gdscript]print("Hello, world!")[/codeblock]'
+
+    interpreter = Interpreter()
+
+    reference_match = re.match(interpreter.el_regex, reference)
+
+    assert reference_match is not None
+
+    # Act
+    ast = interpreter.parse_element(reference_match)
+
+    # Assert
+    assert str(ast) == dedent("""
+		<codeblock language=gdscript
+			"print("Hello, world!")"
+		>
+	""").strip()
+
+
 def test_bbcode_interpreter_parses_text():
     # Arrange
     text = "Hello, World!"
