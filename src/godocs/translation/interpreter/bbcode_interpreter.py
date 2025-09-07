@@ -156,6 +156,19 @@ class BBCodeInterpreter(Interpreter):
         })
 
     def parse_tag(self, el_match: re.Match[str]) -> ast.Node:
+        """
+        Parses a regex match of a text with a `BBCode`
+        tag returning its equivalent in an AST `Node`.
+
+        This method is only capable of parsing standalone tags,
+        not full elements.
+
+        With that said, the only such tags
+        are the `[br]`, the `[lb]` and the `[rb]`.
+
+        For full elements, see `parse_element`.
+        """
+
         name = el_match.group("name")
 
         match name:
@@ -172,6 +185,28 @@ class BBCodeInterpreter(Interpreter):
         return self.parse_reference_tag(el_match)
 
     def parse_element(self, el_match: re.Match[str]) -> ast.Node:
+        """
+        Parses a regex match of a text with a `BBCode` element into
+        an Abstract Syntax Tree `Node`.
+
+        This method currently understands the following elements:
+        - `[b][/b]`
+        - `[i][/i]`
+        - `[u][/u]`
+        - `[s][/s]`
+        - `[color][/color]`
+        - `[font][/font]`
+        - `[img][/img]`
+        - `[url][/url]`
+        - `[center][/center]`
+        - `[kbd][/kbd]`
+        - `[code][/code]`
+        - `[codeblock][/codeblock]`
+
+        Not counting these, this method also interprets the standalone tags
+        supported by the `parse_tag` method.
+        """
+
         # If the match doesn't have a closing tag, it is a standalone tag.
         if not el_match.group("closing"):
             return self.parse_tag(el_match)
@@ -186,27 +221,26 @@ class BBCodeInterpreter(Interpreter):
 
         match name:
             # Converts general markup to standard tag Nodes.
-            case 'p': element.name = "paragraph"
+            # case 'p': element.name = "paragraph"
             case 'b': element.name = "bold"
-            case 'i': element.name = "italics"
-            case 's': element.name = "strikethrough"
+            case 'i': element.name = "italic"
             case 'u': element.name = "underline"
-            case "center":
-                element.name = "alignment"
-                element.params["orientation"] = "horizontal"
-                element.params["direction"] = "center"
+            case 's': element.name = "strikethrough"
             case "color":
                 element.name = "color"
                 element.params["value"] = params["map"].get('', '')
             case "font":
                 element.name = "font"
-                element.params["path"] = params["map"].get('', '')
+                element.params["url"] = params["map"].get('', '')
             case "img":
                 element.name = "image"
                 element.params["width"] = params["map"].get("width", '')
             case "url":
                 element.name = "link"
                 element.params["url"] = params["map"].get('', content)
+            case "center":
+                element.name = "alignment"
+                element.params["x"] = "center"
             # For the below cases, don't parse the contents, as they aren't meant
             # to be parsed (they are either keyboard keys or code samples).
             case "kbd":
