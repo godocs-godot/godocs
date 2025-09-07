@@ -270,8 +270,11 @@ class BBCodeInterpreter(Interpreter):
     def parse_text(
         self,
         text: str,
-        root: ast.TagNode = ast.TagNode("root"),
+        root: ast.TagNode | None = None,
     ) -> ast.TagNode:
+        if root is None:
+            root = ast.TagNode("root")
+
         text_start = 0
         text_end = len(text)
 
