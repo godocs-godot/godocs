@@ -20,20 +20,6 @@ class BBCodeInterpreter(Interpreter):
 
     The conversion realized by this class takes into account both standalone
     and nested tags, and supports parsing of tag options and parameters.
-
-    Methods:
-      parse_options(options: str) -> dict:
-        Parses the options string from a BBCode tag and returns a dictionary with 'list' and 'map' keys for positional and key-value options.
-      parse_reference_tag(el_match: re.Match[str]) -> ast.TagNode:
-        Parses reference tags (e.g., [class], [method], [operator]) and returns the corresponding AST node.
-      parse_tag(el_match: re.Match) -> ast.Node:
-        Parses standalone tags (e.g., [br], [lb], [rb]) or delegates to parse_reference_tag for reference tags.
-      parse_element(el_match: re.Match[str]) -> ast.Node:
-        Parses a matched BBCode element, handling both standalone and paired tags, and returns the corresponding AST node.
-      parse_text(text: str, root=ast.TagNode("root")) -> ast.TagNode:
-        Recursively parses BBCode text, building and returning the AST rooted at the given node.
-    Attributes:
-      el_regex (str): Regular expression pattern used to match BBCode elements in the input text.
     """
 
     el_regex = r"\[(?P<name>\w+)(?P<options>[\S\s]*?)\](?:(?P<content>[\S\s]*?)\[(?P<closing>\/)\1\])?"
