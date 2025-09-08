@@ -1,7 +1,9 @@
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from .types import XMLDoc
+type XMLNode = ET.Element[str]
+
+type XMLDoc = ET.ElementTree[XMLNode]
 
 
 def parse_file(path: str | Path) -> XMLDoc:

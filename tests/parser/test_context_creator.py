@@ -18,7 +18,7 @@ from godocs.parser.context_creator import (
     parse_class,
 )
 
-from godocs.parser.types import XMLDoc
+from godocs.parser.xml_parser import XMLDoc
 
 
 def test_get_class_node_finds_class():
