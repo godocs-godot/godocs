@@ -5,14 +5,8 @@ if TYPE_CHECKING:
     from godocs.parser.context_creator import DocContext
 
 
-class TemplateMap(TypedDict):
-    class_reference: str
-    index: str
-    others: str
-
-
 class Constructor(ABC):
 
     @abstractmethod
-    def construct(self, context: "DocContext", templates: TemplateMap, path: str):
+    def construct(self, context: "DocContext", path: str):
         pass

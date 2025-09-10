@@ -26,4 +26,4 @@ def get_constructor(name: str | PathLike[str]):
                 return module.load("constructor", name).Constructor()
             except AttributeError:
                 raise NotImplementedError(
-                    "Constructor member not found. Custom constructors should have a Constructor class")
+                    "Constructor not found. Custom constructors should have a Constructor class")
