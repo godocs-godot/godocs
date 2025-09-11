@@ -40,28 +40,59 @@ class JinjaConstructor(Constructor):
         └── filters.py
     """
 
+    models_path: Path = Path(__file__).parent / "models"
+
+    models: list[Path] = []
+
+    model: Path | None = None
+
+    templates: list[Path] = []
+
+    filters: list[tuple[str, FunctionType]] = []
+
     def __init__(
         self,
-        model: str | None = None,
+        models_path: str | PathLike[str] | None = None,
+        model: str | PathLike[str] | None = None,
+        templates_path: str | PathLike[str] | None = None,
         templates: list[Path] | None = None,
-        filters: list[tuple[str, FunctionType]] | None = None
+        filters_path: str | PathLike[str] | None = None,
+        filters: list[tuple[str, FunctionType]] | None = None,
     ):
-        self.models = self.find_models()
+        if models_path is not None:
+            self.models_path = Path(models_path)
 
+        self.models = self.find_models(self.models_path)
+
+        # model is either rst by default, or a built-in model
+        # by name or a custom model by path
         if model is None:
             model = "rst"
+        if model is str:
+            self.model = self.find_model(model)
+        if self.model is None:
+            self.model = Path(model)
 
-        self.model = self.find_model(model)
-
+        # templates_path is either got from the model by default or
+        # is got from the argument
+        if templates_path is None:
+            templates_path = self.model / "templates"
+        # templates is got from the default path or from the argument
         if templates is None:
-            templates = self.find_templates(self.model)
+            templates = self.find_templates(Path(templates_path))
+
+        # filters_path is either got from the model by default or
+        # is got from the argument
+        if filters_path is None:
+            filters_path = self.model / "filters.py"
+        # filters is got from the default path or from the argument
         if filters is None:
-            filters = self.load_filters(self.model)
+            filters = self.load_filters(Path(filters_path))
 
         self.templates = templates
-        self.filters = self.load_filters(self.model)
+        self.filters = filters
 
-    def find_models(self) -> list[Path]:
+    def find_models(self, path: Path) -> list[Path]:
         """
         Returns the paths of the built-in models available for this `JinjaConstructor`.
 
@@ -73,21 +104,20 @@ class JinjaConstructor(Constructor):
         """
 
         models = dir.get_subdirs(
-            Path(__file__).parent / "models",
+            path,
             exclude=["__pycache__"],
         )
 
         return models
 
-    def find_model(self, name: str) -> Path:
+    def find_model(self, name: str) -> Path | None:
         for model in self.models:
             if model.stem == name:
                 return model
 
-        raise ModuleNotFoundError(
-            f"Model {name} not found. The models available are {self.models}.")
+        return None
 
-    def find_templates(self, model: Path) -> list[Path]:
+    def find_templates(self, path: Path) -> list[Path]:
         """
         Returns the paths of the templates of the given `model`.
 
@@ -99,20 +129,15 @@ class JinjaConstructor(Constructor):
           list[pathlib.Path]: List of Paths pointing of the templates.
         """
 
-        [template for template in (model / "templates").iterdir()]
-
         templates = dir.get_subitems(
-            model / "templates",
+            path,
             exclude=["__pycache__"]
         )
 
         return templates
 
-    def find_filters(self, model: Path) -> Path:
-        return model / "filters.py"
-
-    def load_filters(self, model: Path) -> list[tuple[str, FunctionType]]:
-        mod = module.load("filters", model / "filters.py")
+    def load_filters(self, path: Path) -> list[tuple[str, FunctionType]]:
+        mod = module.load("filters", path)
 
         return module.get_functions(mod)
 
