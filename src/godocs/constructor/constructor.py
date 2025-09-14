@@ -1,13 +1,9 @@
 from abc import ABC, abstractmethod
 from os import PathLike
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from godocs.parser.context_creator import DocContext, Class
+from typing import Any
 
 
-class ConstructorContext(DocContext):
-    current_class: Class
+type ConstructorContext = dict[str, Any]
 
 
 class Constructor(ABC):

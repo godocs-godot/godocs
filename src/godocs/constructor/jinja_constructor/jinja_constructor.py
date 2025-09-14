@@ -6,11 +6,11 @@ from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 from typing import TYPE_CHECKING
 
 from godocs.util import dir, module
-
-if TYPE_CHECKING:
-    from godocs.constructor.constructor import ConstructorContext
-
 from godocs.constructor import Constructor
+from godocs.constructor.constructor import ConstructorContext
+
+type Builder = Callable[[
+    Template, ConstructorContext, str | PathLike[str]], None]
 
 DEFAULT_MODEL = "rst"
 
@@ -51,6 +51,8 @@ class JinjaConstructor(Constructor):
 
     filters: list[tuple[str, FunctionType]] = []
 
+    builders: dict[str, Builder] = {}
+
     def __init__(
         self,
         models_path: str | PathLike[str] | None = None,
@@ -59,6 +61,7 @@ class JinjaConstructor(Constructor):
         templates: list[Path] | None = None,
         filters_path: str | PathLike[str] | None = None,
         filters: list[tuple[str, FunctionType]] | None = None,
+        builders: dict[str, Builder] | None = None,
     ):
         if models_path is not None:
             self.models_path = Path(models_path)
@@ -89,9 +92,15 @@ class JinjaConstructor(Constructor):
         # filters is got from the default path or from the argument
         if filters is None:
             filters = self.load_filters(Path(filters_path))
+        if builders is None:
+            builders = {
+                "class": JinjaConstructor.construct_class_templates,
+                "index": JinjaConstructor.construct_index_template,
+            }
 
         self.templates = templates
         self.filters = filters
+        self.builders = builders
 
     def find_models(self, path: Path) -> list[Path]:
         """
@@ -148,8 +157,8 @@ class JinjaConstructor(Constructor):
 
         return env
 
+    @staticmethod
     def construct_template(
-        self,
         name: str,
         template: Template,
         context: ConstructorContext,
@@ -165,8 +174,8 @@ class JinjaConstructor(Constructor):
         with path.joinpath(f"{name}.{CONSTRUCTED_TYPE}").open("w") as f:
             f.write(result)
 
+    @staticmethod
     def construct_class_templates(
-        self,
         template: Template,
         context: ConstructorContext,
         path: str | PathLike[str],
@@ -174,16 +183,16 @@ class JinjaConstructor(Constructor):
         for class_data in context["classes"]:
             context["current_class"] = class_data
 
-            self.construct_template(
+            JinjaConstructor.construct_template(
                 class_data["name"], template, context, path)
 
+    @staticmethod
     def construct_index_template(
-        self,
         template: Template,
         context: ConstructorContext,
         path: str | PathLike[str],
     ) -> None:
-        self.construct_template("index", template, context, path)
+        JinjaConstructor.construct_template("index", template, context, path)
 
     def construct(self, context: ConstructorContext, path: str | PathLike[str]):
         print("not implemented")
