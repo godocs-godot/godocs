@@ -16,7 +16,7 @@ With these files, `godocs` can be used to **parse** them into `.rst` documentati
 godocs <input-dir> <output-dir>
 ```
 
-## Install dependencies
+## Installing dependencies
 
 It's **recommended** to be **inside a virtual environment** before **installing the project dependencies**, as to **not clutter your global dependencies**.
 
@@ -40,9 +40,16 @@ pip install .
 
 # For development dependencies:
 pip install .[dev]
+
+# For peer dependencies:
+pip install .[peer]
 ```
 
 The **dependencies** installed are **listed** in the `pyproject.toml` under the `[project.dependencies]` field - for general **required dependencies** - and the `[project.optional-dependencies.dev]` field - for **development dependencies** (which include test and build stuff).
+
+**Peer dependencies** are can be **found** under the `[project.optional-dependencies.peer]` field. `Jinja2` is considered a **peer dependency** for this library as you can create **your own** `Constructors` that **don't** necessarily **need that package**, making its installation **unecessary** in those cases.
+
+If you want to use the **default** `Constructor` (most of the cases, probably), you can just **install** the **peer dependencies** with the **command** shown **above**.
 
 ## Building
 
