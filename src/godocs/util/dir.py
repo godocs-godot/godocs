@@ -30,7 +30,7 @@ def get_subitems(
     for p in path.iterdir():
         if p.name in exclude:
             continue
-        if not p.name in include:
+        if len(include) > 0 and not p.name in include:
             continue
         if not predicate(p):
             continue
