@@ -1,21 +1,20 @@
-import importlib.util
-import sys
-import inspect
 from os import PathLike
 from pathlib import Path
 from types import FunctionType
-from typing import Callable, Any
+from typing import Callable, Any, cast
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
 from typing import TYPE_CHECKING
 
 from godocs.util import dir, module
 
 if TYPE_CHECKING:
-    from godocs.parser.context_creator import DocContext
+    from godocs.constructor.constructor import ConstructorContext
 
 from godocs.constructor import Constructor
 
 DEFAULT_MODEL = "rst"
+
+CONSTRUCTED_TYPE = "rst"
 
 
 class JinjaConstructor(Constructor):
@@ -145,32 +144,48 @@ class JinjaConstructor(Constructor):
 
     def register_filters(self, env: Environment, filters: list[tuple[str, Callable[..., Any]]]) -> Environment:
         for filter in filters:
-            env.filters[filter[0]] = filter[1]
+            env.filters[filter[0]] = filter[1]  # type: ignore
 
         return env
 
-    def construct_class_references(
+    def construct_template(
+        self,
+        name: str,
+        template: Template,
+        context: ConstructorContext,
+        path: str | PathLike[str],
+    ) -> None:
+        path = Path(path)
+
+        result = template.render(context)
+
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+
+        with path.joinpath(f"{name}.{CONSTRUCTED_TYPE}").open("w") as f:
+            f.write(result)
+
+    def construct_class_templates(
         self,
         template: Template,
-        context: "DocContext",
-        path: str,
+        context: ConstructorContext,
+        path: str | PathLike[str],
     ) -> None:
-        context = context.copy()
-
         for class_data in context["classes"]:
-            context["class"] = class_data
+            context["current_class"] = class_data
 
-            result = template.render(context)
+            self.construct_template(
+                class_data["name"], template, context, path)
 
-            path = Path(path).absolute()
+    def construct_index_template(
+        self,
+        template: Template,
+        context: ConstructorContext,
+        path: str | PathLike[str],
+    ) -> None:
+        self.construct_template("index", template, context, path)
 
-            if not path.exists():
-                path.mkdir(parents=True, exist_ok=True)
-
-            with path.joinpath(context["class"]["name"].join("." + self.model)).open("w") as f:
-                f.write(result)
-
-    def construct(self, context: "DocContext", build_path: str):
+    def construct(self, context: ConstructorContext, path: str | PathLike[str]):
         print("not implemented")
 
         # env = Environment(
