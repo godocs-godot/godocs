@@ -47,6 +47,8 @@ class JinjaConstructor(Constructor):
 
     model: Path | None = None
 
+    templates_path: Path | None = None
+
     templates: list[Path] = []
 
     filters: list[tuple[str, FunctionType]] = []
@@ -81,9 +83,12 @@ class JinjaConstructor(Constructor):
         # is got from the argument
         if templates_path is None:
             templates_path = self.model / "templates"
+
+        self.templates_path = Path(templates_path)
+
         # templates is got from the default path or from the argument
         if templates is None:
-            templates = self.find_templates(Path(templates_path))
+            templates = self.find_templates(self.templates_path)
 
         # filters_path is either got from the model by default or
         # is got from the argument
@@ -195,17 +200,23 @@ class JinjaConstructor(Constructor):
         JinjaConstructor.construct_template("index", template, context, path)
 
     def construct(self, context: ConstructorContext, path: str | PathLike[str]):
-        print("not implemented")
+        env = Environment(
+            loader=FileSystemLoader(self.templates_path),
+            autoescape=select_autoescape()
+        )
 
-        # env = Environment(
-        #     loader=FileSystemLoader(class_reference_template_path),
-        #     autoescape=select_autoescape()
-        # )
+        self.register_filters(env, self.filters)
 
-        # self.register_filters(env, filters)
+        for template_path in self.templates:
+            builder = self.builders.get(template_path.stem)
 
-        # template = env.get_template("index.jinja")
+            if builder is None:
+                continue
 
-        # self.construct_class_references(template, context, build_path)
+            if template_path.is_dir():
+                template_path = template_path / "index.jinja"
 
-        # print(template.render(context))
+            # FIX: templates should be strings representing paths relative to the templates_path, not Paths
+            template = env.get_template(template_path)
+
+            builder(template, context, path)
