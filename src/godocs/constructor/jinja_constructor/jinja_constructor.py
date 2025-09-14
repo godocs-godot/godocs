@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 from godocs.constructor import Constructor
 
+DEFAULT_MODEL = "rst"
+
 
 class JinjaConstructor(Constructor):
     """
@@ -67,8 +69,8 @@ class JinjaConstructor(Constructor):
         # model is either rst by default, or a built-in model
         # by name or a custom model by path
         if model is None:
-            model = "rst"
-        if model is str:
+            model = DEFAULT_MODEL
+        if isinstance(model, str):
             self.model = self.find_model(model)
         if self.model is None:
             self.model = Path(model)
@@ -147,12 +149,6 @@ class JinjaConstructor(Constructor):
 
         return env
 
-    # def get_model_path(self, model_paths: list[Path]) -> Path:
-    #     return next((path for path in model_paths if path.name == self.model), None)
-
-    # def get_template_path(self, template_paths: list[Path], template: str) -> Path:
-    #     return next((path for path in template_paths if path.name == template), None)
-
     def construct_class_references(
         self,
         template: Template,
@@ -174,33 +170,18 @@ class JinjaConstructor(Constructor):
             with path.joinpath(context["class"]["name"].join("." + self.model)).open("w") as f:
                 f.write(result)
 
-    # def construct(self, context: "DocContext", build_path: str):
-    #     model_paths = self.get_model_paths()
+    def construct(self, context: "DocContext", build_path: str):
+        print("not implemented")
 
-    #     model_path = self.get_model_path(model_paths)
+        # env = Environment(
+        #     loader=FileSystemLoader(class_reference_template_path),
+        #     autoescape=select_autoescape()
+        # )
 
-    #     template_paths = self.get_template_paths(model_path)
+        # self.register_filters(env, filters)
 
-    #     class_index_template_path = self.get_template_path(
-    #         template_paths, "class_index")
-    #     class_reference_template_path = self.get_template_path(
-    #         template_paths, "class_reference")
+        # template = env.get_template("index.jinja")
 
-    #     filters_path = self.get_filters_path(model_path)
+        # self.construct_class_references(template, context, build_path)
 
-    #     filters_module = load_module("filters", filters_path)
-
-    #     filters = get_functions_from_module(filters_module)
-
-    #     env = Environment(
-    #         loader=FileSystemLoader(class_reference_template_path),
-    #         autoescape=select_autoescape()
-    #     )
-
-    #     self.register_filters(env, filters)
-
-    #     template = env.get_template("index.jinja")
-
-    #     self.construct_class_references(template, context, build_path)
-
-    #     # print(template.render(context))
+        # print(template.render(context))
