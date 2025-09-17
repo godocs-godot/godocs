@@ -12,6 +12,12 @@ from godocs.constructor.constructor import ConstructorContext
 type Builder = Callable[[
     Template, ConstructorContext, str | PathLike[str]], None]
 
+MODELS_PATH = Path(__file__).parent / "models"
+"""
+The path to the directory containing the built-in **models** available for this constructor.
+This is set to `godocs/constructor/jinja_constructor/models`.
+"""
+
 DEFAULT_MODEL = "rst"
 
 CONSTRUCTED_TYPE = "rst"
@@ -19,20 +25,20 @@ CONSTRUCTED_TYPE = "rst"
 
 class JinjaConstructor(Constructor):
     """
-    A specialized `Constructor` that uses the `jinja` template language to
-    build the output documentation.
+    A specialized `Constructor` that uses the **Jinja** template language to
+    build output documentation.
 
-    On initialization, this class can receive a couple arguments:
-    - `model`: the **name** of the built-in **model** this constructor
-               should use or a **path** to a custom **model**.
-    - `templates`: a list with the paths of the `jinja` **templates** that
-                   should be used to build the documentation.
-    - `filters`: a list of tuples with `str`-`function` pairs representing
-                 the filters that the jinja engine is going to need
-                 when using the templates to build the docs.
+    Some important concepts for this class are:
 
-    In this class, the concept of `models` is a folder (or module) that
-    holds has the following structure:
+    - Model: a model here refers to a **directory** where
+             **Jinja** **templates** and **filters** are located.
+
+    - Template: either a **folder** with an `index` file or a
+                **Jinja** **file** with a **Jinja** template.
+
+    - Filter: a function usable as a **Jinja** filter.
+
+    For visualization, below is the structure of a model folder:
 
         <model>/
         ├── templates/
@@ -40,8 +46,6 @@ class JinjaConstructor(Constructor):
         │   └── <template2>/index.jinja>
         └── filters.py
     """
-
-    models_path: Path = Path(__file__).parent / "models"
 
     models: list[Path] = []
 
@@ -57,18 +61,41 @@ class JinjaConstructor(Constructor):
 
     def __init__(
         self,
-        models_path: str | PathLike[str] | None = None,
         model: str | PathLike[str] | None = None,
         templates_path: str | PathLike[str] | None = None,
-        templates: list[Path] | None = None,
         filters_path: str | PathLike[str] | None = None,
-        filters: list[tuple[str, FunctionType]] | None = None,
         builders: dict[str, Builder] | None = None,
     ):
-        if models_path is not None:
-            self.models_path = Path(models_path)
+        """
+        Instantiates a new `JinjaConstructor` with several optional customizations
+        through parameters.
 
-        self.models = self.find_models(self.models_path)
+        Parameters:
+            model: the **name** of the built-in **model** this constructor
+                   should use or a **path** to a custom **model**.
+                   By default, the `rst` model is chosen.
+            templates_path: a **path** to a folder with **templates**
+                            for use by this constructor.
+                            Has precedence over the **templates path** got from
+                            the chosen **model**.
+                            By default, the `templates_path` is derived from the
+                            `model` chosen.
+            filters_path: a **path** to a **Python script** with **functions**
+                          that can be used as **Jinja** filters by this constructor.
+                          Has precedence over the **filters path** got from
+                          the chosen **model**.
+                          By default, the `filters_path` is derived from the
+                          `model` chosen.
+            builders: a `dict` mapping `str` names to `Builder` functions.
+                      The name of the **templates** (file or folder name) is compared
+                      with this `dict` to decide what `Builder` is used by what template.
+                      By default, the `builders` support a `class` template -
+                      which builds one output file for each class in the docs -
+                      and an `index` template - which renders one file with an index for
+                      all others.
+        """
+
+        self.models = self.find_models(MODELS_PATH)
 
         # model is either rst by default, or a built-in model
         # by name or a custom model by path
@@ -86,25 +113,21 @@ class JinjaConstructor(Constructor):
 
         self.templates_path = Path(templates_path)
 
-        # templates is got from the default path or from the argument
-        if templates is None:
-            templates = self.find_templates(self.templates_path)
+        self.templates = self.find_templates(self.templates_path)
 
         # filters_path is either got from the model by default or
         # is got from the argument
         if filters_path is None:
             filters_path = self.model / "filters.py"
-        # filters is got from the default path or from the argument
-        if filters is None:
-            filters = self.load_filters(Path(filters_path))
+
+        self.filters = self.load_filters(Path(filters_path))
+
         if builders is None:
             builders = {
                 "class": JinjaConstructor.construct_class_templates,
                 "index": JinjaConstructor.construct_index_template,
             }
 
-        self.templates = templates
-        self.filters = filters
         self.builders = builders
 
     def find_models(self, path: Path) -> list[Path]:
