@@ -197,3 +197,24 @@ def test_default_construction_with_builders():
     assert "builder1" in constructor.builders
     assert "builder2" in constructor.builders
     assert "builder3" in constructor.builders
+
+
+def test_find_models_ignores_files(tmp_path: Path):
+    # Arrange
+    model1 = tmp_path / "model1"
+    model2 = tmp_path / "model2"
+    model3 = tmp_path / "model3.py"
+
+    model1.mkdir()
+    model2.mkdir()
+    model3.touch()
+
+    constructor = JinjaConstructor()
+
+    # Act
+    models = constructor.find_models(tmp_path)
+
+    # Assert
+    assert len(models) == 2
+    assert models[0].stem == "model1"
+    assert models[1].stem == "model2"
