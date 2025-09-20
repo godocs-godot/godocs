@@ -1,4 +1,5 @@
 from pathlib import Path
+from jinja2 import Environment
 
 from godocs.constructor.jinja_constructor import JinjaConstructor
 from godocs.constructor.jinja_constructor.jinja_constructor import Builder
@@ -387,3 +388,24 @@ def test_load_filters_extracts_functions_from_module(tmp_path: Path):
     assert filters[0][0] == "filter1"
     assert filters[1][0] == "filter2"
     assert filters[2][0] == "filter3"
+
+
+def test_register_filters_succeds():
+    # Arrange
+    filters = [
+        ("filter1", lambda: ""),
+        ("filter2", lambda: ""),
+        ("filter3", lambda: ""),
+    ]
+
+    constructor = JinjaConstructor()
+
+    env = Environment()
+
+    # Act
+    env = constructor.register_filters(env, filters)
+
+    # Assert
+    assert "filter1" in env.filters  # type: ignore
+    assert "filter2" in env.filters  # type: ignore
+    assert "filter3" in env.filters  # type: ignore
