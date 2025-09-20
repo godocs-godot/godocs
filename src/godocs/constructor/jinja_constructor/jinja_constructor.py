@@ -240,6 +240,15 @@ class JinjaConstructor(Constructor):
         return module.get_functions(mod)
 
     def register_filters(self, env: Environment, filters: list[tuple[str, FunctionType]]) -> Environment:
+        """
+        **Registers** the `functions` present in the `filters` argument as
+        **filters** in the `env`, so that they are usable by
+        **Jinja templates** of this **constructor**.
+
+        Returns:
+            Environment: The **Jinja environment** modified by this function.
+        """
+
         for filter in filters:
             env.filters[filter[0]] = filter[1]  # type: ignore
 
