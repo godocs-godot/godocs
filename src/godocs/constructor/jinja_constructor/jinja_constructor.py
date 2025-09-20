@@ -14,13 +14,20 @@ type Builder = Callable[[
 
 MODELS_PATH = Path(__file__).parent / "models"
 """
-The path to the directory containing the built-in **models** available for this constructor.
+The path to the directory containing the built-in **models** available for the `JinjaConstructor`.
 This is set to `godocs/constructor/jinja_constructor/models`.
 """
 
 DEFAULT_MODEL = "rst"
+"""
+The name of the default model from the built-in **models** used by the
+`JinjaConstructor`, which defaults to `rst`.
+"""
 
-CONSTRUCTED_TYPE = "rst"
+OUTPUT_TYPE = "rst"
+"""
+The type extension used by the files constructed with the `JinjaConstructor`.
+"""
 
 
 class JinjaConstructor(Constructor):
@@ -38,26 +45,61 @@ class JinjaConstructor(Constructor):
 
     - Filter: a function usable as a **Jinja** filter.
 
+    - Builder: a function that receives a **Jinja** `Template`, a
+               `ConstructorContext` and a folder `path`, and realizes the
+               **creation** of one or more **output files inside** that `path`.
+
     For visualization, below is the structure of a model folder:
 
         <model>/
         ├── templates/
         │   ├── <template1.jinja>
-        │   └── <template2>/index.jinja>
+        │   └── <template2>
+        │       ├── <index.jinja>
+        │       ├── <header.jinja>
+        │       └── <footer.jinja>
         └── filters.py
     """
 
     models: list[Path] = []
+    """
+    A `list` with the default **models recognized** by this constructor,
+    **got based** on the `MODELS_PATH` path.
+    """
 
     model: Path | None = None
+    """
+    The **model** to be used by this constructor.
+    """
 
     templates_path: Path | None = None
+    """
+    A **path** for a **directory** with the **templates**
+    to be used with this constructor.
+    """
 
     templates: list[Path] = []
+    """
+    A `list` with **templates** of this constructor,
+    got **from** the `templates_path`.
+    """
 
     filters: list[tuple[str, FunctionType]] = []
+    """
+    A `list` with `tuples` storing a **pair of name - filters**.
+    These **filters** are got **from** the **model** chosen for
+    this class, or from the `filters_path` passed to the **constructor**.
+    """
 
     builders: dict[str, Builder] = {}
+    """
+    A `dict` with the **builders** this **constructor** should use.
+    The **keys** here are the **names** of the `Builders`, and the
+    **values** are the **builders themselves**.
+
+    The **names** are important since they are what **link** what
+    `templates` are gonna be passed to what **builders**.
+    """
 
     def __init__(
         self,
@@ -199,7 +241,7 @@ class JinjaConstructor(Constructor):
         if not path.exists():
             path.mkdir(parents=True, exist_ok=True)
 
-        with path.joinpath(f"{name}.{CONSTRUCTED_TYPE}").open("w") as f:
+        with path.joinpath(f"{name}.{OUTPUT_TYPE}").open("w") as f:
             f.write(result)
 
     @staticmethod
