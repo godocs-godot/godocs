@@ -166,8 +166,8 @@ class JinjaConstructor(Constructor):
 
         if builders is None:
             builders = {
-                "class": JinjaConstructor.construct_class_templates,
-                "index": JinjaConstructor.construct_index_template,
+                "class": JinjaConstructor.build_class_templates,
+                "index": JinjaConstructor.build_index_template,
             }
 
         self.builders = builders
@@ -222,6 +222,15 @@ class JinjaConstructor(Constructor):
 
         return templates
 
+    def get_template_from_path(self, path: Path) -> Path:
+        return path if not path.is_dir() else next(path.glob("index.jinja"))
+
+    def get_template_name(self, template: Path) -> str:
+        if self.templates_path is None:
+            return template.stem
+
+        return template.relative_to(self.templates_path).as_posix()
+
     def load_filters(self, path: Path) -> list[tuple[str, FunctionType]]:
         """
         **Loads** the **functions** from a **script** in the `path` and returns them
@@ -255,7 +264,7 @@ class JinjaConstructor(Constructor):
         return env
 
     @staticmethod
-    def construct_template(
+    def build_template(
         name: str,
         template: Template,
         context: ConstructorContext,
@@ -272,7 +281,7 @@ class JinjaConstructor(Constructor):
             f.write(result)
 
     @staticmethod
-    def construct_class_templates(
+    def build_class_templates(
         template: Template,
         context: ConstructorContext,
         path: str | PathLike[str],
@@ -280,18 +289,35 @@ class JinjaConstructor(Constructor):
         for class_data in context["classes"]:
             context["current_class"] = class_data
 
-            JinjaConstructor.construct_template(
+            JinjaConstructor.build_template(
                 class_data["name"], template, context, path)
 
     @staticmethod
-    def construct_index_template(
+    def build_index_template(
         template: Template,
         context: ConstructorContext,
         path: str | PathLike[str],
     ) -> None:
-        JinjaConstructor.construct_template("index", template, context, path)
+        JinjaConstructor.build_template("index", template, context, path)
+
+    def build_templates(self, env: Environment, context: ConstructorContext, path: str | PathLike[str]):
+        for template_path in self.templates:
+            builder = self.builders.get(template_path.stem)
+
+            if builder is None:
+                continue
+
+            # template_path = self.get_template_from_path(template_path)
+
+            template = env.get_template(self.get_template_name(template_path))
+
+            builder(template, context, path)
 
     def construct(self, context: ConstructorContext, path: str | PathLike[str]):
+        if self.templates_path is None:
+            raise AttributeError(
+                "construction needs templates_path to be defined")
+
         env = Environment(
             loader=FileSystemLoader(self.templates_path),
             autoescape=select_autoescape()
@@ -299,16 +325,4 @@ class JinjaConstructor(Constructor):
 
         self.register_filters(env, self.filters)
 
-        for template_path in self.templates:
-            builder = self.builders.get(template_path.stem)
-
-            if builder is None:
-                continue
-
-            if template_path.is_dir():
-                template_path = template_path / "index.jinja"
-
-            # FIX: templates should be strings representing paths relative to the templates_path, not Paths
-            template = env.get_template(template_path)
-
-            builder(template, context, path)
+        self.build_templates(env, context, path)
