@@ -57,5 +57,6 @@ def get_subdirs(
         path,
         exclude,
         include,
-        lambda p: p.is_dir() and predicate(p) if predicate is not None else True
+        predicate=lambda p: p.is_dir() and (
+            predicate(p) if predicate is not None else True)
     )
