@@ -198,14 +198,15 @@ class JinjaConstructor(Constructor):
 
     def find_templates(self, path: Path) -> list[Path]:
         """
-        Returns the paths of the templates of the given `model`.
+        **Returns** the paths of the **templates inside** the `path` directory.
+        **Templates** here are considered anything that:
 
-        This method searches in the file system for the `templates` of the `model` provided,
-        considering all folders or files in the `templates` directory to be templates
-        (except for the __pycache__ folder).
+        - is **not** `__pycache__`;
+        - has an `index.jinja`, if it's a folder;
+        - is a `.jinja` file.
 
         Returns:
-          list[pathlib.Path]: List of Paths pointing of the templates.
+          list[pathlib.Path]: **Templates** inside the `path`.
         """
 
         if not path.exists():
@@ -213,7 +214,10 @@ class JinjaConstructor(Constructor):
 
         templates = dir.get_subitems(
             path,
-            exclude=["__pycache__"]
+            exclude=["__pycache__"],
+            predicate=lambda p:
+                not p.is_dir() and p.suffix == ".jinja" or (
+                p.is_dir() and len(list(p.glob("index.jinja"))) == 1)
         )
 
         return templates
