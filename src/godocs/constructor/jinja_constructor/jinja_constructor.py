@@ -174,13 +174,12 @@ class JinjaConstructor(Constructor):
 
     def find_models(self, path: Path) -> list[Path]:
         """
-        Returns the paths of the built-in models available for this `JinjaConstructor`.
-
-        This method searches in the file system for the modules in the `models` folder
-        inside the `jinja_constructor` module (except for the __pycache__ folder).
+        **Returns** the paths of the **models inside** the `path` directory
+        (**models** here are considered **any folder** that is
+        **not** `__pycache__`).
 
         Returns:
-          list[pathlib.Path]: List of Paths of the models.
+          list[pathlib.Path]: **Models** inside the `path`.
         """
 
         models = dir.get_subdirs(
