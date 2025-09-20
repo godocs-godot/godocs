@@ -63,14 +63,14 @@ def test_default_construction_with_model_with_templates(tmp_path: Path):
     # Arrange
     model = tmp_path / "model"
     templates = model / "templates"
+    template1 = templates / "template1.jinja"
+    template2_dir = templates / "template2"
+    template2 = template2_dir / "index.jinja"
 
     templates.mkdir(parents=True, exist_ok=True)
-
-    template1 = templates / "template1.jinja"
-    template2 = templates / "template2"
-
     template1.touch()
-    template2.mkdir()
+    template2_dir.mkdir()
+    template2.touch()
 
     # Act
     constructor = JinjaConstructor(model=model)
@@ -125,11 +125,13 @@ def test_default_construction_with_templates_path(tmp_path: Path):
     # Arrange
     templates_path = tmp_path / "custom_templates"
     template1 = templates_path / "template1.jinja"
-    template2 = templates_path / "template2"
+    template2_dir = templates_path / "template2"
+    template2 = template2_dir / "index.jinja"
 
     templates_path.mkdir(parents=True, exist_ok=True)
     template1.touch()
-    template2.mkdir()
+    template2_dir.mkdir()
+    template2.touch()
 
     # Act
     constructor = JinjaConstructor(templates_path=templates_path)
@@ -218,3 +220,151 @@ def test_find_models_ignores_files(tmp_path: Path):
     assert len(models) == 2
     assert models[0].stem == "model1"
     assert models[1].stem == "model2"
+
+
+def test_find_models_ignores_pycache(tmp_path: Path):
+    # Arrange
+    model1 = tmp_path / "model1"
+    model2 = tmp_path / "model2"
+    model3 = tmp_path / "__pycache__"
+
+    model1.mkdir()
+    model2.mkdir()
+    model3.mkdir()
+
+    constructor = JinjaConstructor()
+
+    # Act
+    models = constructor.find_models(tmp_path)
+
+    # Assert
+    assert len(models) == 2
+    assert models[0].stem == "model1"
+    assert models[1].stem == "model2"
+
+
+def test_find_model_returns_model_by_name():
+    # Arrange
+    constructor = JinjaConstructor()
+
+    # Act
+    model = constructor.find_model("rst")
+
+    # Assert
+    assert model is not None
+    assert model.stem == "rst"
+    assert model.parent.stem == "models"
+
+
+def test_find_model_returns_not_found():
+    # Arrange
+    constructor = JinjaConstructor()
+
+    # Act
+    model = constructor.find_model("md")
+
+    # Assert
+    assert model is None
+
+
+def test_find_templates_considers_files_and_folders(tmp_path: Path):
+    # Arrange
+    templates_path = tmp_path / "templates"
+    template1_dir = templates_path / "template1"
+    template2_dir = templates_path / "template2"
+    template1 = template1_dir / "index.jinja"
+    template2 = template2_dir / "index.jinja"
+    template3 = templates_path / "template3.jinja"
+
+    templates_path.mkdir()
+    template1_dir.mkdir()
+    template2_dir.mkdir()
+    template1.touch()
+    template2.touch()
+    template3.touch()
+
+    constructor = JinjaConstructor()
+
+    # Act
+    templates = constructor.find_templates(templates_path)
+
+    # Assert
+    assert len(templates) == 3
+    assert templates[0].stem == "template1"
+    assert templates[1].stem == "template2"
+    assert templates[2].stem == "template3"
+
+
+def test_find_templates_ignores_folders_without_index(tmp_path: Path):
+    # Arrange
+    templates_path = tmp_path / "templates"
+    template1_dir = templates_path / "template1"
+    template2_dir = templates_path / "template2"
+    template1 = template1_dir / "index.jinja"
+    template3 = templates_path / "template3.jinja"
+
+    templates_path.mkdir()
+    template1_dir.mkdir()
+    template2_dir.mkdir()
+    template1.touch()
+    template3.touch()
+
+    constructor = JinjaConstructor()
+
+    # Act
+    templates = constructor.find_templates(templates_path)
+
+    # Assert
+    assert len(templates) == 2
+    assert templates[0].stem == "template1"
+    assert templates[1].stem == "template3"
+
+
+def test_find_templates_ignores_pycache(tmp_path: Path):
+    # Arrange
+    templates_path = tmp_path / "templates"
+    template1_dir = templates_path / "template1"
+    template2_dir = templates_path / "__pycache__"
+    template1 = template1_dir / "index.jinja"
+    template3 = templates_path / "template3.jinja"
+
+    templates_path.mkdir()
+    template1_dir.mkdir()
+    template2_dir.mkdir()
+    template1.touch()
+    template3.touch()
+
+    constructor = JinjaConstructor()
+
+    # Act
+    templates = constructor.find_templates(templates_path)
+
+    # Assert
+    assert len(templates) == 2
+    assert templates[0].stem == "template1"
+    assert templates[1].stem == "template3"
+
+
+def test_find_templates_ignores_nonjinja_files(tmp_path: Path):
+    # Arrange
+    templates_path = tmp_path / "templates"
+    template1_dir = templates_path / "template1"
+    template1 = template1_dir / "index.jinja"
+    template2 = templates_path / "template2.njk"
+    template3 = templates_path / "template3.jinja"
+
+    templates_path.mkdir()
+    template1_dir.mkdir()
+    template1.touch()
+    template2.touch()
+    template3.touch()
+
+    constructor = JinjaConstructor()
+
+    # Act
+    templates = constructor.find_templates(templates_path)
+
+    # Assert
+    assert len(templates) == 2
+    assert templates[0].stem == "template1"
+    assert templates[1].stem == "template3"
