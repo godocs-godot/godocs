@@ -368,3 +368,22 @@ def test_find_templates_ignores_nonjinja_files(tmp_path: Path):
     assert len(templates) == 2
     assert templates[0].stem == "template1"
     assert templates[1].stem == "template3"
+
+
+def test_load_filters_extracts_functions_from_module(tmp_path: Path):
+    # Arrange
+    filters_script = tmp_path / "filters.py"
+
+    # filters_script.touch()
+    filters_script.write_text(TEST_FILTERS)
+
+    constructor = JinjaConstructor()
+
+    # Act
+    filters = constructor.load_filters(filters_script)
+
+    # Assert
+    assert len(filters) == 3
+    assert filters[0][0] == "filter1"
+    assert filters[1][0] == "filter2"
+    assert filters[2][0] == "filter3"
