@@ -223,6 +223,15 @@ class JinjaConstructor(Constructor):
         return templates
 
     def load_filters(self, path: Path) -> list[tuple[str, FunctionType]]:
+        """
+        **Loads** the **functions** from a **script** in the `path` and returns them
+        as a `list` of `tuples` with **name-function pairs**, so that they can
+        be used as **Jinja filters**.
+
+        Returns:
+            list[tuple[str, FunctionType]]: **Functions** from **script** in the `path`.
+        """
+
         if not path.exists():
             return []
 
@@ -230,7 +239,7 @@ class JinjaConstructor(Constructor):
 
         return module.get_functions(mod)
 
-    def register_filters(self, env: Environment, filters: list[tuple[str, Callable[..., Any]]]) -> Environment:
+    def register_filters(self, env: Environment, filters: list[tuple[str, FunctionType]]) -> Environment:
         for filter in filters:
             env.filters[filter[0]] = filter[1]  # type: ignore
 
