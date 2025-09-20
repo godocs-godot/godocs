@@ -209,6 +209,9 @@ class JinjaConstructor(Constructor):
           list[pathlib.Path]: List of Paths pointing of the templates.
         """
 
+        if not path.exists():
+            return []
+
         templates = dir.get_subitems(
             path,
             exclude=["__pycache__"]
@@ -217,6 +220,9 @@ class JinjaConstructor(Constructor):
         return templates
 
     def load_filters(self, path: Path) -> list[tuple[str, FunctionType]]:
+        if not path.exists():
+            return []
+
         mod = module.load("filters", path)
 
         return module.get_functions(mod)
