@@ -511,3 +511,37 @@ def test_get_template_name_returns_relative_template_path(tmp_path: Path):
 
     # Assert
     assert result == "custom_template"
+
+
+def test_build_templates_uses_templates_and_builders(tmp_path: Path):
+    # Arrange
+    templates_path = tmp_path / "templates"
+    template1_dir = templates_path / "template1"
+    template1 = template1_dir / "index.jinja"
+    template2 = templates_path / "template2.jinja"
+    build_path = tmp_path / "build"
+
+    templates_path.mkdir()
+    template1_dir.mkdir()
+    template1.write_text("Template1")
+    template2.write_text("Template2")
+
+    builders: dict[str, Builder] = {
+        "template1": lambda t, c, p: JinjaConstructor.build_template("doc1", t, c, p),
+        "template2": lambda t, c, p: JinjaConstructor.build_template("doc2", t, c, p),
+    }
+
+    constructor = JinjaConstructor(
+        templates_path=templates_path, builders=builders)
+
+    assert constructor.env is not None
+
+    # Act
+    constructor.build_templates(constructor.env, context={}, path=build_path)
+
+    # Assert
+    doc1 = build_path.joinpath("doc1.rst").read_text()
+    doc2 = build_path.joinpath("doc2.rst").read_text()
+
+    assert doc1 == "Template1"
+    assert doc2 == "Template2"
