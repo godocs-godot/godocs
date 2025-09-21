@@ -287,7 +287,7 @@ class JinjaConstructor(Constructor):
         path: str | PathLike[str],
     ) -> None:
         for class_data in context["classes"]:
-            context["current_class"] = class_data
+            context["class"] = class_data
 
             JinjaConstructor.build_template(
                 class_data["name"], template, context, path)
