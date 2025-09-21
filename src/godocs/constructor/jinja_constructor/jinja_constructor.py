@@ -101,6 +101,68 @@ class JinjaConstructor(Constructor):
     `templates` are gonna be passed to what **builders**.
     """
 
+    @staticmethod
+    def build_template(
+        name: str,
+        template: Template,
+        context: ConstructorContext,
+        path: str | PathLike[str],
+    ) -> None:
+        """
+        **Builds** an output **document** in the `path/name` path with the
+        **file extension** specified by the `OUTPUT_FORMAT` constant.
+
+        This method **expects** a `template` that's used to create its
+        result, with the use of the data inside the `context`, that
+        also needs to be **supplied**.
+        """
+
+        path = Path(path)
+
+        result = template.render(context)
+
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+
+        with path.joinpath(f"{name}.{OUTPUT_TYPE}").open("w") as f:
+            f.write(result)
+
+    @staticmethod
+    def build_class_templates(
+        template: Template,
+        context: ConstructorContext,
+        path: str | PathLike[str],
+    ) -> None:
+        """
+        **Builds** output **documents** for all `classes` specified
+        in the `classes` field of the `context`.
+
+        The **files produced** are **named** after those
+        same **classes**, but in **lower case**.
+        """
+
+        for class_data in context["classes"]:
+            context["class"] = class_data
+
+            JinjaConstructor.build_template(
+                class_data["name"], template, context, path)
+
+    @staticmethod
+    def build_index_template(
+        template: Template,
+        context: ConstructorContext,
+        path: str | PathLike[str],
+    ) -> None:
+        """
+        **Builds** an output **document** meant to store an **index**
+        for the **classes** documented.
+
+        The **name** of the generated file is `index`, with the
+        **extension** from `OUTPUT_FORMAT`.
+        """
+
+        JinjaConstructor.build_template("index", template, context, path)
+
     def __init__(
         self,
         model: str | PathLike[str] | None = None,
@@ -287,43 +349,6 @@ class JinjaConstructor(Constructor):
             env.filters[filter[0]] = filter[1]  # type: ignore
 
         return env
-
-    @staticmethod
-    def build_template(
-        name: str,
-        template: Template,
-        context: ConstructorContext,
-        path: str | PathLike[str],
-    ) -> None:
-        path = Path(path)
-
-        result = template.render(context)
-
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-
-        with path.joinpath(f"{name}.{OUTPUT_TYPE}").open("w") as f:
-            f.write(result)
-
-    @staticmethod
-    def build_class_templates(
-        template: Template,
-        context: ConstructorContext,
-        path: str | PathLike[str],
-    ) -> None:
-        for class_data in context["classes"]:
-            context["class"] = class_data
-
-            JinjaConstructor.build_template(
-                class_data["name"], template, context, path)
-
-    @staticmethod
-    def build_index_template(
-        template: Template,
-        context: ConstructorContext,
-        path: str | PathLike[str],
-    ) -> None:
-        JinjaConstructor.build_template("index", template, context, path)
 
     def build_templates(self, env: Environment, context: ConstructorContext, path: str | PathLike[str]):
         for template_path in self.templates:
