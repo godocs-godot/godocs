@@ -222,8 +222,8 @@ class JinjaConstructor(Constructor):
 
         return templates
 
-    def get_template_from_path(self, path: Path) -> Path:
-        return path if not path.is_dir() else next(path.glob("index.jinja"))
+    def get_template_index(self, template: Path) -> Path:
+        return template if not template.is_dir() else next(template.glob("index.jinja"))
 
     def get_template_name(self, template: Path) -> str:
         if self.templates_path is None:
@@ -307,7 +307,7 @@ class JinjaConstructor(Constructor):
             if builder is None:
                 continue
 
-            # template_path = self.get_template_from_path(template_path)
+            template_path = self.get_template_index(template_path)
 
             template = env.get_template(self.get_template_name(template_path))
 
