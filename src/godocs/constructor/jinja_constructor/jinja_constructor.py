@@ -40,7 +40,7 @@ class JinjaConstructor(Constructor):
     - Model: a model here refers to a **directory** where
              **Jinja** **templates** and **filters** are located.
 
-    - Template: either a **folder** with an `index` file or a
+    - Template: either a **folder** with an `index.jinja` file or a
                 **Jinja** **file** with a **Jinja** template.
 
     - Filter: a function usable as a **Jinja** filter.
@@ -223,9 +223,34 @@ class JinjaConstructor(Constructor):
         return templates
 
     def get_template_index(self, template: Path) -> Path:
+        """
+        **Returns** the **path** of the **Jinja index file** of a template
+        so that it can be used by the `Environment` to render a result.
+
+        If the `template` `Path` passed in points to a **file template**, it is
+        already considered **its own index**.
+        If it is a **directory**, the `index.jinja` inside it is
+        considered its **index**.
+
+        A valid `template` is **expected** by this function
+        (as described by the docs of this class).
+
+        Returns:
+          str: **index** path of the **template**.
+        """
+
         return template if not template.is_dir() else next(template.glob("index.jinja"))
 
     def get_template_name(self, template: Path) -> str:
+        """
+        **Returns** the **name** (path) of a **template relative**
+        to the `templates_path` directory, so that it can be
+        found by the `FileSystemLoader` used by the `Environment`.
+
+        Returns:
+          str: **name** of the **template**.
+        """
+
         if self.templates_path is None:
             return template.stem
 
