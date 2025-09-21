@@ -1,5 +1,6 @@
 from pathlib import Path
-from jinja2 import Environment
+import jinja2 as j2
+from textwrap import dedent
 
 from godocs.constructor.jinja_constructor import JinjaConstructor
 from godocs.constructor.jinja_constructor.jinja_constructor import Builder
@@ -15,6 +16,91 @@ TEST_BUILDERS: dict[str, Builder] = {
     "builder2": lambda t, c, p: None,
     "builder3": lambda t, c, p: None,
 }
+
+
+def test_build_template_writes_to_file(tmp_path: Path):
+    # Arrange
+    env = j2.Environment(loader=j2.DictLoader(
+        {"test_template": "Hello, {{ name }}!"}))
+
+    template = env.get_template("test_template")
+
+    # Act
+    JinjaConstructor.build_template(
+        name="output",
+        template=template,
+        context={"name": "Test"},
+        path=tmp_path,
+    )
+
+    # Assert
+    result = tmp_path.joinpath("output.rst").read_text()
+
+    assert result == "Hello, Test!"
+
+
+def test_build_class_templates_writes_to_files(tmp_path: Path):
+    # Arrange
+    env = j2.Environment(loader=j2.DictLoader(
+        {"class": "{{class.name}}"}))
+
+    template = env.get_template("class")
+
+    # Act
+    JinjaConstructor.build_class_templates(
+        template=template,
+        context={"classes": [
+            {"name": "Class1"},
+            {"name": "Class2"},
+            {"name": "Class3"},
+        ]},
+        path=tmp_path,
+    )
+
+    # Assert
+    class1_doc = tmp_path.joinpath("class1.rst").read_text()
+    class2_doc = tmp_path.joinpath("class2.rst").read_text()
+    class3_doc = tmp_path.joinpath("class3.rst").read_text()
+
+    assert class1_doc == "Class1"
+    assert class2_doc == "Class2"
+    assert class3_doc == "Class3"
+
+
+def test_build_index_template_writes_to_file(tmp_path: Path):
+    # Arrange
+    template_content = dedent("""
+        {% for class in classes -%}
+        {{class.name}}
+        {% endfor %}
+    """.strip("\n"))
+
+    env = j2.Environment(loader=j2.DictLoader(
+        {"index": template_content}))
+
+    template = env.get_template("index")
+
+    # Act
+    JinjaConstructor.build_index_template(
+        template=template,
+        context={"classes": [
+            {"name": "Class1"},
+            {"name": "Class2"},
+            {"name": "Class3"},
+        ]},
+        path=tmp_path,
+    )
+
+    # Assert
+    index_doc = tmp_path.joinpath("index.rst").read_text()
+
+    index_content = dedent("""
+        Class1
+        Class2
+        Class3
+    """.strip("\n"))
+
+    assert index_doc == index_content
 
 
 def test_default_construction():
@@ -400,7 +486,7 @@ def test_register_filters_succeds():
 
     constructor = JinjaConstructor()
 
-    env = Environment()
+    env = j2.Environment()
 
     # Act
     env = constructor.register_filters(env, filters)
