@@ -1,9 +1,8 @@
 from os import PathLike
 from pathlib import Path
 from types import FunctionType
-from typing import Callable, Any, cast
+from typing import Callable
 from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
-from typing import TYPE_CHECKING
 
 from godocs.util import dir, module
 from godocs.constructor import Constructor
@@ -101,6 +100,12 @@ class JinjaConstructor(Constructor):
     `templates` are gonna be passed to what **builders**.
     """
 
+    env: Environment | None = None
+    """
+    The **Jinja environment** used by this `JinjaConstructor` to
+    read **templates** and generate output.
+    """
+
     @staticmethod
     def build_template(
         name: str,
@@ -124,8 +129,7 @@ class JinjaConstructor(Constructor):
         if not path.exists():
             path.mkdir(parents=True, exist_ok=True)
 
-        with path.joinpath(f"{name}.{OUTPUT_TYPE}").open("w") as f:
-            f.write(result)
+        path.joinpath(f"{name}.{OUTPUT_TYPE}").write_text(result)
 
     @staticmethod
     def build_class_templates(
@@ -234,6 +238,12 @@ class JinjaConstructor(Constructor):
 
         self.builders = builders
 
+        self.env = Environment(
+            loader=FileSystemLoader(self.templates_path),
+            autoescape=select_autoescape()
+        )
+        self.register_filters(self.env, self.filters)
+
     def find_models(self, path: Path) -> list[Path]:
         """
         **Returns** the paths of the **models inside** the `path` directory
@@ -252,6 +262,12 @@ class JinjaConstructor(Constructor):
         return models
 
     def find_model(self, name: str) -> Path | None:
+        """
+        Receives the `name` of a **model** to **look for** among the
+        **default models** available and **returns** the `Path` for
+        the found one, if not `None`.
+        """
+
         for model in self.models:
             if model.stem == name:
                 return model
@@ -357,22 +373,14 @@ class JinjaConstructor(Constructor):
             if builder is None:
                 continue
 
-            template_path = self.get_template_index(template_path)
+            template_index = self.get_template_index(template_path)
 
-            template = env.get_template(self.get_template_name(template_path))
+            template = env.get_template(self.get_template_name(template_index))
 
             builder(template, context, path)
 
     def construct(self, context: ConstructorContext, path: str | PathLike[str]):
-        if self.templates_path is None:
-            raise AttributeError(
-                "construction needs templates_path to be defined")
+        if self.env is None:
+            raise AttributeError("construction needs env to be defined")
 
-        env = Environment(
-            loader=FileSystemLoader(self.templates_path),
-            autoescape=select_autoescape()
-        )
-
-        self.register_filters(env, self.filters)
-
-        self.build_templates(env, context, path)
+        self.build_templates(self.env, context, path)
