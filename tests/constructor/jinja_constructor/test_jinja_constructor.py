@@ -12,9 +12,9 @@ def filter3(): return ""
 """
 
 TEST_BUILDERS: dict[str, Builder] = {
-    "builder1": lambda t, c, p: None,
-    "builder2": lambda t, c, p: None,
-    "builder3": lambda t, c, p: None,
+    "builder1": lambda f, t, c, p: None,
+    "builder2": lambda f, t, c, p: None,
+    "builder3": lambda f, t, c, p: None,
 }
 
 
@@ -28,6 +28,7 @@ def test_build_template_writes_to_file(tmp_path: Path):
     # Act
     JinjaConstructor.build_template(
         name="output",
+        format="rst",
         template=template,
         context={"name": "Test"},
         path=tmp_path,
@@ -49,6 +50,7 @@ def test_build_class_templates_writes_to_files(tmp_path: Path):
     # Act
     JinjaConstructor.build_class_templates(
         template=template,
+        format="rst",
         context={"classes": [
             {"name": "Class1"},
             {"name": "Class2"},
@@ -83,6 +85,7 @@ def test_build_index_template_writes_to_file(tmp_path: Path):
     # Act
     JinjaConstructor.build_index_template(
         template=template,
+        format="rst",
         context={"classes": [
             {"name": "Class1"},
             {"name": "Class2"},
@@ -527,8 +530,8 @@ def test_build_templates_uses_templates_and_builders(tmp_path: Path):
     template2.write_text("Template2")
 
     builders: dict[str, Builder] = {
-        "template1": lambda t, c, p: JinjaConstructor.build_template("doc1", t, c, p),
-        "template2": lambda t, c, p: JinjaConstructor.build_template("doc2", t, c, p),
+        "template1": lambda f, t, c, p: JinjaConstructor.build_template("doc1", f, t, c, p),
+        "template2": lambda f, t, c, p: JinjaConstructor.build_template("doc2", f, t, c, p),
     }
 
     constructor = JinjaConstructor(
