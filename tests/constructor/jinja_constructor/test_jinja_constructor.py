@@ -409,3 +409,19 @@ def test_register_filters_succeds():
     assert "filter1" in env.filters  # type: ignore
     assert "filter2" in env.filters  # type: ignore
     assert "filter3" in env.filters  # type: ignore
+
+
+def test_get_template_name_returns_relative_template_path(tmp_path: Path):
+    # Arrange
+    templates_path = tmp_path / "custom_templates"
+
+    constructor = JinjaConstructor(templates_path=templates_path)
+
+    assert constructor.templates_path is not None
+
+    # Act
+    result = constructor.get_template_name(
+        constructor.templates_path / "custom_template")
+
+    # Assert
+    assert result == "custom_template"
