@@ -21,8 +21,7 @@ classifiers = [
   "Natural Language :: English",
 ]
 dependencies = [
-#    "requests", # Example dependency
-#    "numpy>=1.20", # Example dependency with version constraint
+  "typer >= 0.19.2, < 1.0.0"
 ]
 
 [project.scripts]
