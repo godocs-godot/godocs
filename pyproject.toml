@@ -23,7 +23,7 @@ classifiers = [
 dependencies = []
 
 [project.scripts]
-godocs = "godocs.cli:main"
+godocs = "godocs.cli.main:main"
 
 [project.optional-dependencies]
 dev = [
