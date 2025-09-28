@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from typing import Any
-from godocs.cli.argparse import jinja
+from godocs.cli import jinja
 
 TRANSLATORS = ["rst"]
 
