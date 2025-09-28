@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from typing import Any, TypedDict
 from godocs.cli.command.cli_command import CLICommand
 from godocs.cli.command.jinja_command import JinjaCommand
@@ -38,6 +38,9 @@ class ConstructCommand(CLICommand):
     Currently, there's only the `"jinja"` option.
     """
 
+    def exec(self, args: Namespace):
+        self.parser.print_help()
+
     def register(self, subparsers: Any):
         """
         Registers this `ConstructCommand` as a subparser for the
@@ -52,6 +55,7 @@ class ConstructCommand(CLICommand):
             default="rst",
             help=f"Which translator to use. Can be one of {self.TRANSLATORS} or a path to a script."
         )
+        self.parser.set_defaults(func=self.exec)
 
         self.subparsers = self.parser.add_subparsers(
             title="constructor", description="The constructor to use.")
