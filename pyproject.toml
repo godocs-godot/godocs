@@ -20,9 +20,7 @@ classifiers = [
   "Intended Audience :: Developers",
   "Natural Language :: English",
 ]
-dependencies = [
-  "typer >= 0.19.2, < 1.0.0"
-]
+dependencies = []
 
 [project.scripts]
 godocs = "godocs.cli:main"
