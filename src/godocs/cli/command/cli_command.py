@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
+from argparse import ArgumentParser
 
 
 class CLICommand(ABC):
@@ -12,7 +13,7 @@ class CLICommand(ABC):
     """
 
     @abstractmethod
-    def register(self, subparsers: Any | None):
+    def register(self, subparsers: Any | None = None, parent: ArgumentParser | None = None):
         """
         Abstract method that takes a `subparsers` instance
         (from `argparse.ArgumentParser.add_subparsers`) and

@@ -23,21 +23,22 @@ class JinjaCommand(CLICommand):
         """
         Executes the main logic of this command with the parsed `args`.
         """
+        self.parser.print_help()
 
-        print(f"[Jinja] Model: {args.model}")
-        print(f"[Jinja] Templates: {args.templates}")
-        print(f"[Jinja] Filters: {args.filters}")
-        print(f"[Jinja] Builders: {args.builders}")
-        print(f"[Jinja] In: {args.input_dir}, Out: {args.output_dir}")
+        print("\n[Godocs Construct Jinja]")
+        print(args)
 
-    def register(self, subparsers: Any):
+    def register(self, subparsers: Any | None = None, parent: ArgumentParser | None = None):
         """
         Registers this `JinjaCommand` as a subparser for the
         `subparsers` received.
         """
 
+        if subparsers is None:
+            raise ValueError('subparsers is needed for "jinja" resistration')
+
         self.parser: ArgumentParser = subparsers.add_parser(
-            "jinja", help="Construct docs using the Jinja constructor.")
+            "jinja", help="Construct docs using the Jinja constructor.", parents=[parent])
 
         self.parser.add_argument(
             "-m", "--model",
@@ -55,11 +56,5 @@ class JinjaCommand(CLICommand):
         self.parser.add_argument(
             "-B", "--builders",
             help="Path to script with builders dict."
-        )
-        self.parser.add_argument(
-            "input_dir", help="Input directory with XML documentation files."
-        )
-        self.parser.add_argument(
-            "output_dir", help="Output directory to save generated documentation."
         )
         self.parser.set_defaults(func=self.exec)

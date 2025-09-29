@@ -64,7 +64,10 @@ class AppCommand(CLICommand):
     def exec(self, args: Namespace):
         self.parser.print_help()
 
-    def register(self, subparsers: Any | None = None):
+        print("\n[Godocs]")
+        print(args)
+
+    def register(self, subparsers: Any | None = None, parent: ArgumentParser | None = None):
         """
         Creates the `parser` for this `AppCommand` and
         registers the `--plugin` or `-p` option, as well
