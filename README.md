@@ -76,3 +76,38 @@ python -m build .
 This will use the `setuptools` **build backend** in an **isolated temporary environment** to **create the distributables**.
 
 When executed, **there should be** a `dist` folder with a `.tar.gz` archive and a `.whl` build.
+
+## Extending
+Godocs strives to be **open for configurations and extensions** from users, that's why a **plugin system** is implemented.
+
+Currently, users can add **custom constructors** as well as **custom CLI commands** to receive the configurations for those constructors.
+
+Scripts that define plugins should **expose** a `register` function, that expects an `AppCommand` as its parameter.
+
+Down below is a snippet showing an example of a **custom command plugin**, that adds a **constructor option** to the CLI, and, when chosen prints `"[Godocs Construct Custom]"` and the args `Namespace` received from argsparse:
+
+```python
+from argparse import Namespace
+from godocs.cli.command import AppCommand
+
+
+def exec(args: Namespace):
+    print("[Godocs Construct Custom]")
+    print(args)
+
+
+def register(app: AppCommand):
+    construct = app.commands["construct"]
+
+    construct_subparsers = construct.subparsers
+
+    if construct_subparsers is None:
+        raise
+
+    custom_parser = construct_subparsers.add_parser(
+        "custom", help="Construct docs using a custom constructor.", parents=[construct.subparsers_parent])
+
+    custom_parser.set_defaults(func=exec)
+```
+
+In order to **apply this plugin** to the **CLI**, the `-p` or `--plugin` **option** should be passed with the **path to this script** in the `godocs` program.
