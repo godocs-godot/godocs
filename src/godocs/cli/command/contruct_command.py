@@ -78,7 +78,7 @@ class ConstructCommand(CLICommand):
         self.parser.set_defaults(func=self.exec)
 
         self.subparsers = self.parser.add_subparsers(
-            title="constructor", description="The constructor to use.")
+            title="constructor", dest="constructor", description="The constructor to use.")
 
         self.commands["jinja"].register(
             self.subparsers, self.subparsers_parent)
