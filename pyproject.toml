@@ -2,9 +2,15 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+godocs = ["constructor/jinja_constructor/models/**/*.jinja"]
+
 [project]
 name = "godocs"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
   { name="Daniel Sousa (nadjiel)", email="oliveira.daaaaniel@gmail.com" },
 ]
