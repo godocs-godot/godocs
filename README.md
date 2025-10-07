@@ -77,6 +77,13 @@ This will use the `setuptools` **build backend** in an **isolated temporary envi
 
 When executed, **there should be** a `dist` folder with a `.tar.gz` archive and a `.whl` build.
 
+## Deploying
+To deploy this package, use the following command:
+
+``` sh
+python -m twine upload dist/*
+```
+
 ## Extending
 Godocs strives to be **open for configurations and extensions** from users, that's why a **plugin system** is implemented.
 
