@@ -28,6 +28,12 @@ classifiers = [
 ]
 dependencies = []
 
+# Godocs plugins would define something like this
+# dependencies = ["godocs"]
+
+# [project.entry-points."godocs.plugins"]
+# jinja = "godocs-jinja.main:Plugin"
+
 [project.scripts]
 godocs = "godocs.cli:main"
 
