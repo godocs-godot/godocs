@@ -16,6 +16,20 @@ With these files, `godocs` can be used to **parse** them into `.rst` documentati
 godocs <input-dir> <output-dir>
 ```
 
+### Commands
+
+Godocs provides a CLI with commands for generating documentation. Here's a quick list:
+
+``` sh
+godocs --[h]elp
+godocs --[p]lugin
+
+godocs construct --[h]elp
+godocs construct {constructor}
+godocs construct jinja --[h]elp
+godocs construct jinja --[t]ranslator --[m]odel --[T]emplates --[F]ilters --[B]uilders <in> <out>
+```
+
 ## Installing dependencies
 
 It's **recommended** to be **inside a virtual environment** before **installing the project dependencies**, as to **not clutter your global dependencies**.
