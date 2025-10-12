@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-godocs = ["constructor/jinja_constructor/models/**/*.jinja"]
+godocs = ["py.typed", "constructor/jinja_constructor/models/**/*.jinja"]
 
 [project]
 name = "godocs"
