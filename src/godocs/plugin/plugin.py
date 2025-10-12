@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
-from godocs.cli import CLICommand
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from godocs.cli import CLICommand
 
 
 class Plugin(ABC):
@@ -11,7 +14,7 @@ class Plugin(ABC):
     """
 
     @abstractmethod
-    def register(self, app: CLICommand):
+    def register(self, app: "CLICommand"):
         """
         This abstract method should be implemented to register
         new plugins to the Godocs package.

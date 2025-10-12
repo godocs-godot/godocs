@@ -1,4 +1,4 @@
-from godocs.cli import AppCommand
+from godocs.cli.command import AppCommand
 from godocs import plugin
 
 
