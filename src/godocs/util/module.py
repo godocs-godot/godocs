@@ -34,6 +34,18 @@ def load(name: str, path: str | PathLike[str]):
     return module
 
 
+def get_classes(module: ModuleType):
+    """
+    Returns a `list` with `tuples` storing the name and value of
+    the classes of a given `module`.
+    """
+
+    return list(filter(
+        lambda member_data: member_data[1].__module__ == module.__name__,
+        inspect.getmembers(module, inspect.isclass)
+    ))
+
+
 def get_functions(module: ModuleType):
     """
     Returns a `list` with `tuples` storing the name and value of

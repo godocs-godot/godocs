@@ -1,9 +1,10 @@
 from argparse import ArgumentParser, Namespace
 from os import PathLike
-from typing import Any, Optional, Sequence, TypedDict, Callable
+from typing import Any, Optional, Sequence, TypedDict, Callable, cast
 from godocs.cli.command.cli_command import CLICommand
 from godocs.cli.command.contruct_command import ConstructCommand
 from godocs.util import module
+from godocs.plugin import Plugin as PluginType
 
 
 class AppCommands(TypedDict):
@@ -50,16 +51,26 @@ class AppCommand(CLICommand):
     Currently, there's only the `"construct"` option.
     """
 
-    def register_plugin(self, path: str | PathLike[str]):
-        plugin = module.load("plugin", path)
-        register: RegisterPlugin | None = dict(
-            module.get_functions(plugin)).get("register")
+    def register_plugin(self, plugin: str | PathLike[str] | PluginType):
+        """
+        Executes the registering logic for a `plugin` received, giving
+        it this `AppCommand` instance so that it can customize it
+        as necessary.
+        """
 
-        if register is None:
-            raise NotImplementedError(
-                f"Plugin {path} needs to implement a register function")
+        if not isinstance(plugin, PluginType):
+            plugin_module = module.load("plugin", plugin)
 
-        register(self)
+            Plugin = dict(
+                module.get_classes(plugin_module)).get("Plugin")
+
+            if Plugin is None:
+                raise NotImplementedError(
+                    f"Plugin {plugin} needs to implement a Plugin class")
+
+            plugin = cast(PluginType, Plugin())
+
+        plugin.register(self)
 
     def exec(self, args: Namespace):
         self.parser.print_help()
