@@ -75,9 +75,6 @@ class AppCommand(CLICommand):
     def exec(self, args: Namespace):
         self.parser.print_help()
 
-        print("\n[Godocs]")
-        print(args)
-
     def register(self, subparsers: Any | None = None, parent: ArgumentParser | None = None):
         """
         Creates the `parser` for this `AppCommand` and
@@ -108,6 +105,7 @@ class AppCommand(CLICommand):
         self.subparsers = self.parser.add_subparsers(
             title="command", description="The command to execute.")
 
+        # Registers the construct command to the subparsers
         self.commands["construct"].register(self.subparsers)
 
     def main(self, argv: Optional[Sequence[str]] = None):
@@ -125,7 +123,7 @@ class AppCommand(CLICommand):
         # Registers main parser's subparsers.
         self.register_subparsers()
 
-        # If a plugin script was provided, execute it.
+        # If a plugin script was provided, register it.
         if args.plugin:
             self.register_plugin(args.plugin)
 

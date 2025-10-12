@@ -101,34 +101,45 @@ python -m twine upload dist/*
 ## Extending
 Godocs strives to be **open for configurations and extensions** from users, that's why a **plugin system** is implemented.
 
-Currently, users can add **custom constructors** as well as **custom CLI commands** to receive the configurations for those constructors.
+Currently, users can add to the application both through script plugins and plugin packages by extending the `Plugin` class. Users can add **custom constructors** as well as **custom CLI commands** to receive the configurations for those constructors, or any other modifications they want.
 
-Scripts that define plugins should **expose** a `register` function, that expects an `AppCommand` as its parameter.
+Scripts that define plugins should **expose** a `Plugin` class, that implements the base `godocs.plugin.Plugin` with its main `register` method defining what happens when this plugin is used.
 
 Down below is a snippet showing an example of a **custom command plugin**, that adds a **constructor option** to the CLI, and, when chosen prints `"[Godocs Construct Custom]"` and the args `Namespace` received from argsparse:
 
-```python
+``` python
 from argparse import Namespace
-from godocs.cli.command import AppCommand
+from godocs.plugin import Plugin as BasePlugin
+from godocs.cli import AppCommand
 
 
-def exec(args: Namespace):
-    print("[Godocs Construct Custom]")
-    print(args)
+class Plugin(BasePlugin):
 
+    def exec(self, args: Namespace):
+        print("[Godocs Construct Custom]")
+        print(args)
 
-def register(app: AppCommand):
-    construct = app.commands["construct"]
+    def register(self, app: AppCommand):
+        construct = app.commands["construct"]
 
-    construct_subparsers = construct.subparsers
+        construct_subparsers = construct.subparsers
 
-    if construct_subparsers is None:
-        raise
+        if construct_subparsers is None:
+            raise
 
-    custom_parser = construct_subparsers.add_parser(
-        "custom", help="Construct docs using a custom constructor.", parents=[construct.subparsers_parent])
+        custom_parser = construct_subparsers.add_parser(
+            "custom", help="Construct docs using a custom constructor.", parents=[construct.subparsers_parent])
 
-    custom_parser.set_defaults(func=exec)
+        custom_parser.set_defaults(func=self.exec)
+
 ```
 
-In order to **apply this plugin** to the **CLI**, the `-p` or `--plugin` **option** should be passed with the **path to this script** in the `godocs` program.
+In order to **apply this plugin** to the **CLI**, the `-p` or `--plugin` **option** can be passed with the **path to this script** in the `godocs` program.
+
+In order to make plugins more easily shareable, plugin packages are also supported by using entry points. Here's an example of how the `godocs-jinja` plugin exposes itself as a plugin so `godocs` can find and register it:
+
+``` python
+# pyproject.toml
+[project.entry-points."godocs.plugins"]
+jinja = "godocs_jinja.main:JinjaPlugin"
+```
