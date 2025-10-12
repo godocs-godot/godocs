@@ -1,11 +1,8 @@
 from argparse import ArgumentParser, Namespace
-from typing import Any, TypedDict
+from typing import Any
 from godocs.cli.command.cli_command import CLICommand
-from godocs.cli.command.jinja_command import JinjaCommand
 
-
-class ConstructCommands(TypedDict):
-    jinja: JinjaCommand
+# TODO: add integration with jinja commands (through the plugin, though this warning is here)
 
 
 class ConstructCommand(CLICommand):
@@ -35,13 +32,9 @@ class ConstructCommand(CLICommand):
     the constructor types chosen.
     """
 
-    commands: ConstructCommands = {
-        "jinja": JinjaCommand()
-    }
+    commands: dict[str, CLICommand] = {}
     """
     The subcommands this `ConstructCommand` exposes.
-
-    Currently, there's only the `"jinja"` option.
     """
 
     def exec(self, args: Namespace):
