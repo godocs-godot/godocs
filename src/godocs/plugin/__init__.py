@@ -1,2 +1,4 @@
-from .loader import load  # type: ignore
-from .plugin import Plugin  # type: ignore
+from .loader import load
+from .plugin import Plugin
+
+__all__ = ["load", "Plugin"]
