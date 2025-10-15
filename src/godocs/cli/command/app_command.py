@@ -1,17 +1,17 @@
 from argparse import ArgumentParser, Namespace
+from typing import TypedDict, cast, Optional, TYPE_CHECKING
 from os import PathLike
-from typing import Any, Optional, Sequence, TypedDict, Callable, cast
 from godocs.cli.command.cli_command import CLICommand
 from godocs.cli.command.contruct_command import ConstructCommand
+from godocs.plugin import Plugin as PluginType, load as load_plugins
 from godocs.util import module
-from godocs.plugin import Plugin as PluginType
+
+if TYPE_CHECKING:
+    from argparse import _SubParsersAction  # type: ignore
 
 
-class AppCommands(TypedDict):
+class AppSubcommands(TypedDict):
     construct: ConstructCommand
-
-
-type RegisterPlugin = Callable[[AppCommand], None]
 
 
 class AppCommand(CLICommand):
@@ -37,12 +37,12 @@ class AppCommand(CLICommand):
     The `argparse.ArgumentParser` instance this `AppCommand` uses.
     """
 
-    subparsers: Any | None = None
+    subparsers: "_SubParsersAction[ArgumentParser]"
     """
     The `subparsers` of the `parser` of this `AppCommand`.
     """
 
-    commands: AppCommands = {
+    subcommands: AppSubcommands = {
         "construct": ConstructCommand()
     }
     """
@@ -51,7 +51,50 @@ class AppCommand(CLICommand):
     Currently, there's only the `"construct"` option.
     """
 
-    def register_plugin(self, plugin: str | PathLike[str] | PluginType):
+    def register(self, superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None):
+        """
+        Creates the `parser` for this `AppCommand` and
+        registers the `--plugin` or `-p` option, as well
+        as sets the help printing function as the default
+        behavior when nothing else is chosen.
+        """
+
+        self.parser = ArgumentParser(
+            description="Godot Docs generator CLI")
+
+        self.parser.add_argument(
+            "-p", "--plugin",
+            help="Optional plugin script path to extend CLI."
+        )
+        self.parser.set_defaults(execute=self.execute)
+
+        self.subparsers = self.parser.add_subparsers(
+            title="command", description="The command to execute.")
+
+        self._register_subcommands()
+
+        plugins = load_plugins()
+
+        for p in plugins:
+            self._register_plugin(p)
+
+    def execute(self, args: Namespace):
+        self.parser.print_help()
+
+    def parse(self):
+        args, _ = self.parser.parse_known_args()
+
+        if args.plugin:
+            self._register_plugin(args.plugin)
+
+        args, _ = self.parser.parse_known_args()
+
+        return args
+
+    def start(self, args: Namespace):
+        args.execute(args)
+
+    def _register_plugin(self, plugin: str | PathLike[str] | PluginType):
         """
         Executes the registering logic for a `plugin` received, giving
         it this `AppCommand` instance so that it can customize it
@@ -72,64 +115,10 @@ class AppCommand(CLICommand):
 
         plugin.register(self)
 
-    def exec(self, args: Namespace):
-        self.parser.print_help()
-
-    def register(self, subparsers: Any | None = None, parent: ArgumentParser | None = None):
+    def _register_subcommands(self):
         """
-        Creates the `parser` for this `AppCommand` and
-        registers the `--plugin` or `-p` option, as well
-        as sets the help printing function as the default
-        behavior when nothing else is chosen.
+        Registers the subcommands for this `AppCommand`.
         """
-
-        self.parser = ArgumentParser(description="Godot Docs generator CLI")
-
-        self.parser.add_argument(
-            "-p", "--plugin",
-            help="Optional plugin script path to extend CLI."
-        )
-        self.parser.set_defaults(func=self.exec)
-
-    def register_subparsers(self):
-        """
-        Registers the subparsers for this `AppCommand`.
-
-        This method was separated from the `register` because
-        this way parsing can be realized before and after
-        the native subcommands are registered, avoiding errors
-        with unknown subparsers that are registered after in
-        plugin code.
-        """
-
-        self.subparsers = self.parser.add_subparsers(
-            title="command", description="The command to execute.")
 
         # Registers the construct command to the subparsers
-        self.commands["construct"].register(self.subparsers)
-
-    def main(self, argv: Optional[Sequence[str]] = None):
-        """
-        Entrypoint for the `AppCommand` to be parsed and executed,
-        as well as to register plugins in the way.
-        """
-
-        # Creates the main parser.
-        self.register()
-
-        # Parses args looking solely for the --plugin option.
-        args, _ = self.parser.parse_known_args(argv)
-
-        # Registers main parser's subparsers.
-        self.register_subparsers()
-
-        # If a plugin script was provided, register it.
-        if args.plugin:
-            self.register_plugin(args.plugin)
-
-        # Parse again, this time with plugin features.
-        args, _ = self.parser.parse_known_args(argv)
-
-        # Execute main args.func.
-        if args.func is not None:
-            args.func(args)
+        self.subcommands["construct"].register(self.subparsers)

@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from argparse import _SubParsersAction  # type: ignore
 
 
 class CLICommand(ABC):
@@ -13,7 +16,7 @@ class CLICommand(ABC):
     """
 
     @abstractmethod
-    def register(self, subparsers: Any | None = None, parent: ArgumentParser | None = None):
+    def register(self, superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None):
         """
         Abstract method that takes a `subparsers` instance
         (from `argparse.ArgumentParser.add_subparsers`) and
@@ -23,4 +26,8 @@ class CLICommand(ABC):
         parameter may be null, since it isn't a subparser
         as opposed to a main parser.
         """
+        pass
+
+    @abstractmethod
+    def execute(self, args: Namespace):
         pass
