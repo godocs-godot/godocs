@@ -62,10 +62,6 @@ class AppCommand(CLICommand):
         self.parser = ArgumentParser(
             description="Godot Docs generator CLI")
 
-        self.parser.add_argument(
-            "-p", "--plugin",
-            help="Optional plugin script path to extend CLI."
-        )
         self.parser.set_defaults(execute=self.execute)
 
         self.subparsers = self.parser.add_subparsers(
@@ -82,11 +78,6 @@ class AppCommand(CLICommand):
         self.parser.print_help()
 
     def parse(self):
-        args, _ = self.parser.parse_known_args()
-
-        if args.plugin:
-            self._register_plugin(args.plugin)
-
         args, _ = self.parser.parse_known_args()
 
         return args
