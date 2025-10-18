@@ -69,6 +69,11 @@ class ConstructCommand(CLICommand):
             help=f"Which translator to use. Can be one of {self.TRANSLATORS} or a path to a script."
         )
         self.parent_parser.add_argument(
+            "-f", "--format",
+            default="rst",
+            help=f"Which file format suffix to use on generated documentation."
+        )
+        self.parent_parser.add_argument(
             "input_dir", help="Input directory with XML documentation files."
         )
         self.parent_parser.add_argument(
