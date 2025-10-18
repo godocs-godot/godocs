@@ -103,7 +103,7 @@ class ConstructCommand(CLICommand):
 
         options: dict[str, str] = {}
 
-        if hasattr(args, "options_file"):
+        if args.options_file != None:
             options = util.options.load(args.options_file)
 
         ctx = context_creator.create(docs, options)
