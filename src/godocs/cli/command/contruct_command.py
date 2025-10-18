@@ -1,9 +1,13 @@
-from godocs.cli.command.cli_command import CLICommand
 from argparse import ArgumentParser, Namespace
 from typing import Optional, TYPE_CHECKING
+from godocs.cli.command.cli_command import CLICommand
+from godocs.parser import xml_parser, context_creator
+from godocs.translation.interpreter import BBCodeInterpreter
+from godocs.translation.translator import get_translator
 
 if TYPE_CHECKING:
     from argparse import _SubParsersAction  # type: ignore
+    from godocs.cli.command.cli_command import Processor
 
 
 class ConstructCommand(CLICommand):
@@ -42,6 +46,7 @@ class ConstructCommand(CLICommand):
         self,
         superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None,
         parent_parser: Optional[ArgumentParser] = None,
+        processors: "Optional[list[Processor]]" = None
     ):
         """
         Registers this `ConstructCommand` as a subparser for the
@@ -51,6 +56,9 @@ class ConstructCommand(CLICommand):
         if superparsers is None:
             raise ValueError(
                 'superparsers are needed for "construct" registration')
+        if processors is None:
+            raise ValueError(
+                'processors are needed for "construct" registration')
 
         self.parser = superparsers.add_parser(
             "construct", help="Construct documentation with a chosen backend")
@@ -67,13 +75,27 @@ class ConstructCommand(CLICommand):
             "output_dir", help="Output directory to save generated documentation."
         )
 
+        processors.append(self.process)
+
         self.parser.set_defaults(execute=self.execute)
 
         self.subparsers = self.parser.add_subparsers(
             title="constructor", dest="constructor", description="The constructor to use.")
 
-        # self.commands["jinja"].register(
-        #     self.subparsers, self.subparsers_parent)
-
     def execute(self, args: Namespace):
         self.parser.print_help()
+
+    def process(self, args: Namespace):
+        docs = xml_parser.parse(args.input_dir)
+
+        ctx = context_creator.create(docs)
+
+        interpreter = BBCodeInterpreter()
+
+        translator = get_translator(args.translator)
+
+        ctx = context_creator.translate(ctx, interpreter, translator)
+
+        args.ctx = ctx
+
+        return args

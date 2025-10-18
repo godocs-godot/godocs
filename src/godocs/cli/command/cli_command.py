@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from argparse import _SubParsersAction  # type: ignore
+
+type Processor = Callable[[Namespace], Namespace]
 
 
 class CLICommand(ABC):
@@ -20,6 +22,7 @@ class CLICommand(ABC):
         self,
         superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None,
         parent_parser: Optional[ArgumentParser] = None,
+        processors: Optional[list[Processor]] = None
     ):
         """
         Abstract method that takes a `subparsers` instance
@@ -35,3 +38,6 @@ class CLICommand(ABC):
     @abstractmethod
     def execute(self, args: Namespace):
         pass
+
+    def process(self, args: Namespace) -> Namespace:
+        return args

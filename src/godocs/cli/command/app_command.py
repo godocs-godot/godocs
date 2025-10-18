@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, Namespace
-from typing import TypedDict, cast, Optional, TYPE_CHECKING
+from typing import TypedDict, cast, Optional, TYPE_CHECKING, Callable
 from os import PathLike
 from godocs.cli.command.cli_command import CLICommand
 from godocs.cli.command.contruct_command import ConstructCommand
@@ -8,6 +8,7 @@ from godocs.util import module
 
 if TYPE_CHECKING:
     from argparse import _SubParsersAction  # type: ignore
+    from godocs.cli.command.cli_command import Processor
 
 
 class AppSubcommands(TypedDict):
@@ -51,10 +52,13 @@ class AppCommand(CLICommand):
     Currently, there's only the `"construct"` option.
     """
 
+    processors: list[Callable[[Namespace], Namespace]] = []
+
     def register(
         self,
         superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None,
         parent_parser: Optional[ArgumentParser] = None,
+        processors: "Optional[list[Processor]]" = None
     ):
         """
         Creates the `parser` for this `AppCommand` and
@@ -87,6 +91,9 @@ class AppCommand(CLICommand):
         return args
 
     def start(self, args: Namespace):
+        for processor in self.processors:
+            args = processor(args)
+
         args.execute(args)
 
     def _register_plugin(self, plugin: str | PathLike[str] | PluginType):
@@ -116,4 +123,5 @@ class AppCommand(CLICommand):
         """
 
         # Registers the construct command to the subparsers
-        self.subcommands["construct"].register(self.subparsers)
+        self.subcommands["construct"].register(
+            self.subparsers, None, self.processors)
