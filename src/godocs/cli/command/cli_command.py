@@ -16,7 +16,11 @@ class CLICommand(ABC):
     """
 
     @abstractmethod
-    def register(self, superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None):
+    def register(
+        self,
+        superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None,
+        parent_parser: Optional[ArgumentParser] = None,
+    ):
         """
         Abstract method that takes a `subparsers` instance
         (from `argparse.ArgumentParser.add_subparsers`) and

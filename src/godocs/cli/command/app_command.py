@@ -51,7 +51,11 @@ class AppCommand(CLICommand):
     Currently, there's only the `"construct"` option.
     """
 
-    def register(self, superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None):
+    def register(
+        self,
+        superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None,
+        parent_parser: Optional[ArgumentParser] = None,
+    ):
         """
         Creates the `parser` for this `AppCommand` and
         registers the `--plugin` or `-p` option, as well

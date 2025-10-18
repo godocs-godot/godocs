@@ -38,7 +38,11 @@ class ConstructCommand(CLICommand):
     The subcommands this `ConstructCommand` exposes.
     """
 
-    def register(self, superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None):
+    def register(
+        self,
+        superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None,
+        parent_parser: Optional[ArgumentParser] = None,
+    ):
         """
         Registers this `ConstructCommand` as a subparser for the
         `subparsers` received.
@@ -46,7 +50,7 @@ class ConstructCommand(CLICommand):
 
         if superparsers is None:
             raise ValueError(
-                'superparsers are needed for "construct" resistration')
+                'superparsers are needed for "construct" registration')
 
         self.parser = superparsers.add_parser(
             "construct", help="Construct documentation with a chosen backend")
