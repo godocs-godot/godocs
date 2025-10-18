@@ -91,6 +91,9 @@ class ConstructCommand(CLICommand):
         self.parser.print_help()
 
     def process(self, args: Namespace):
+        if not hasattr(args, "input_dir") or not hasattr(args, "output_dir"):
+            return args
+
         docs = xml_parser.parse(args.input_dir)
 
         ctx = context_creator.create(docs)
