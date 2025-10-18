@@ -4,6 +4,7 @@ from godocs.cli.command.cli_command import CLICommand
 from godocs.parser import xml_parser, context_creator
 from godocs.translation.interpreter import BBCodeInterpreter
 from godocs.translation.translator import get_translator
+from godocs import util
 
 if TYPE_CHECKING:
     from argparse import _SubParsersAction  # type: ignore
@@ -74,6 +75,10 @@ class ConstructCommand(CLICommand):
             help=f"Which file format suffix to use on generated documentation."
         )
         self.parent_parser.add_argument(
+            "-O", "--options-file",
+            help=f"Path to options JSON with data to use in documentation."
+        )
+        self.parent_parser.add_argument(
             "input_dir", help="Input directory with XML documentation files."
         )
         self.parent_parser.add_argument(
@@ -96,7 +101,12 @@ class ConstructCommand(CLICommand):
 
         docs = xml_parser.parse(args.input_dir)
 
-        ctx = context_creator.create(docs)
+        options: dict[str, str] = {}
+
+        if hasattr(args, "options_file"):
+            options = util.options.load(args.options_file)
+
+        ctx = context_creator.create(docs, options)
 
         interpreter = BBCodeInterpreter()
 
