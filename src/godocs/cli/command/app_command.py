@@ -1,16 +1,18 @@
 from argparse import ArgumentParser, Namespace
+from typing import TypedDict, cast, Optional, TYPE_CHECKING, Callable
 from os import PathLike
-from typing import Any, Optional, Sequence, TypedDict, Callable
 from godocs.cli.command.cli_command import CLICommand
 from godocs.cli.command.contruct_command import ConstructCommand
+from godocs.plugin import Plugin as PluginType, load as load_plugins
 from godocs.util import module
 
+if TYPE_CHECKING:
+    from argparse import _SubParsersAction  # type: ignore
+    from godocs.cli.command.cli_command import Processor
 
-class AppCommands(TypedDict):
+
+class AppSubcommands(TypedDict):
     construct: ConstructCommand
-
-
-type RegisterPlugin = Callable[[AppCommand], None]
 
 
 class AppCommand(CLICommand):
@@ -36,12 +38,12 @@ class AppCommand(CLICommand):
     The `argparse.ArgumentParser` instance this `AppCommand` uses.
     """
 
-    subparsers: Any | None = None
+    subparsers: "_SubParsersAction[ArgumentParser]"
     """
     The `subparsers` of the `parser` of this `AppCommand`.
     """
 
-    commands: AppCommands = {
+    subcommands: AppSubcommands = {
         "construct": ConstructCommand()
     }
     """
@@ -50,24 +52,14 @@ class AppCommand(CLICommand):
     Currently, there's only the `"construct"` option.
     """
 
-    def register_plugin(self, path: str | PathLike[str]):
-        plugin = module.load("plugin", path)
-        register: RegisterPlugin | None = dict(
-            module.get_functions(plugin)).get("register")
+    processors: list[Callable[[Namespace], Namespace]] = []
 
-        if register is None:
-            raise NotImplementedError(
-                f"Plugin {path} needs to implement a register function")
-
-        register(self)
-
-    def exec(self, args: Namespace):
-        self.parser.print_help()
-
-        print("\n[Godocs]")
-        print(args)
-
-    def register(self, subparsers: Any | None = None, parent: ArgumentParser | None = None):
+    def register(
+        self,
+        superparsers: "Optional[_SubParsersAction[ArgumentParser]]" = None,
+        parent_parser: Optional[ArgumentParser] = None,
+        processors: "Optional[list[Processor]]" = None
+    ):
         """
         Creates the `parser` for this `AppCommand` and
         registers the `--plugin` or `-p` option, as well
@@ -75,52 +67,61 @@ class AppCommand(CLICommand):
         behavior when nothing else is chosen.
         """
 
-        self.parser = ArgumentParser(description="Godot Docs generator CLI")
+        self.parser = ArgumentParser(
+            description="Godot Docs generator CLI")
 
-        self.parser.add_argument(
-            "-p", "--plugin",
-            help="Optional plugin script path to extend CLI."
-        )
-        self.parser.set_defaults(func=self.exec)
-
-    def register_subparsers(self):
-        """
-        Registers the subparsers for this `AppCommand`.
-
-        This method was separated from the `register` because
-        this way parsing can be realized before and after
-        the native subcommands are registered, avoiding errors
-        with unknown subparsers that are registered after in
-        plugin code.
-        """
+        self.parser.set_defaults(execute=self.execute)
 
         self.subparsers = self.parser.add_subparsers(
             title="command", description="The command to execute.")
 
-        self.commands["construct"].register(self.subparsers)
+        self._register_subcommands()
 
-    def main(self, argv: Optional[Sequence[str]] = None):
+        plugins = load_plugins()
+
+        for p in plugins:
+            self._register_plugin(p)
+
+    def execute(self, args: Namespace):
+        self.parser.print_help()
+
+    def parse(self):
+        args, _ = self.parser.parse_known_args()
+
+        return args
+
+    def start(self, args: Namespace):
+        for processor in self.processors:
+            args = processor(args)
+
+        args.execute(args)
+
+    def _register_plugin(self, plugin: str | PathLike[str] | PluginType):
         """
-        Entrypoint for the `AppCommand` to be parsed and executed,
-        as well as to register plugins in the way.
+        Executes the registering logic for a `plugin` received, giving
+        it this `AppCommand` instance so that it can customize it
+        as necessary.
         """
 
-        # Creates the main parser.
-        self.register()
+        if not isinstance(plugin, PluginType):
+            plugin_module = module.load("plugin", plugin)
 
-        # Parses args looking solely for the --plugin option.
-        args, _ = self.parser.parse_known_args(argv)
+            Plugin = dict(
+                module.get_classes(plugin_module)).get("Plugin")
 
-        # Registers main parser's subparsers.
-        self.register_subparsers()
+            if Plugin is None:
+                raise NotImplementedError(
+                    f"Plugin {plugin} needs to implement a Plugin class")
 
-        # If a plugin script was provided, execute it.
-        if args.plugin:
-            self.register_plugin(args.plugin)
+            plugin = cast(PluginType, Plugin())
 
-        # Parse again, this time with plugin features.
-        args, _ = self.parser.parse_known_args(argv)
+        plugin.register(self)
 
-        # Execute main args.func.
-        if args.func is not None:
-            args.func(args)
+    def _register_subcommands(self):
+        """
+        Registers the subcommands for this `AppCommand`.
+        """
+
+        # Registers the construct command to the subparsers
+        self.subcommands["construct"].register(
+            self.subparsers, None, self.processors)

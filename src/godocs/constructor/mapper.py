@@ -1,8 +1,9 @@
 from os import PathLike
-from .jinja_constructor import JinjaConstructor
 from godocs.util import module
+from warnings import deprecated
 
 
+@deprecated("Old way of choosing constructor implementation. Use plugins instead.")
 def get_constructor(name: str | PathLike[str]):
     """
     Returns a `Constructor` instance based on the `name` passed.
@@ -20,7 +21,7 @@ def get_constructor(name: str | PathLike[str]):
     """
 
     match name:
-        case "jinja": return JinjaConstructor()
+        case "jinja": return  # JinjaConstructor()
         case _:
             try:
                 return module.load("constructor", name).Constructor()

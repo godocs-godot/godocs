@@ -1,4 +1,4 @@
-from godocs.cli.command.app_command import AppCommand
+from godocs.cli.command import AppCommand
 
 
 def main():
@@ -6,9 +6,14 @@ def main():
     Entrypoint for the `godocs` CLI application.
     """
 
+    # Instantiates main app
     app = AppCommand()
 
-    app.main()
+    app.register()
+
+    args = app.parse()
+
+    app.start(args)
 
 
 if __name__ == "__main__":

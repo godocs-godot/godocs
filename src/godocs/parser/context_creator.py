@@ -3,6 +3,8 @@ from .xml_parser import (
     XMLNode,
     XMLDoc,
 )
+from godocs.translation.translator import SyntaxTranslator
+from godocs.translation.interpreter import Interpreter
 
 
 class Property(TypedDict):
@@ -729,3 +731,53 @@ def create(
         result["classes"].append(parse_class(root, docs))
 
     return result
+
+
+def translate(ctx: DocContext, interpreter: Interpreter, translator: SyntaxTranslator):
+    classes = ctx["classes"]
+    for class_doc in classes:
+        for member in class_doc:
+            match(member):
+                case "brief_description":
+                    class_doc[member] = interpreter.interpret(
+                        class_doc[member]).translate(translator)
+                case "description":
+                    class_doc[member] = interpreter.interpret(
+                        class_doc[member]).translate(translator)
+                case "constants":
+                    constants = class_doc[member]
+                    for constant in constants:
+                        constant["description"] = interpreter.interpret(
+                            constant["description"]).translate(translator)
+                case "enums":
+                    enums = class_doc[member]
+                    for enum in enums:
+                        enum["description"] = interpreter.interpret(
+                            enum["description"]).translate(translator)
+                        constants = enum["values"]
+                        for constant in constants:
+                            constant["description"] = interpreter.interpret(
+                                constant["description"]).translate(translator)
+                case "methods":
+                    methods = class_doc[member]
+                    for method in methods:
+                        method["description"] = interpreter.interpret(
+                            method["description"]).translate(translator)
+                case "properties":
+                    properties = class_doc[member]
+                    for property in properties:
+                        property["description"] = interpreter.interpret(
+                            property["description"]).translate(translator)
+                case "signals":
+                    signals = class_doc[member]
+                    for signal in signals:
+                        signal["description"] = interpreter.interpret(
+                            signal["description"]).translate(translator)
+                case "theme_items":
+                    theme_items = class_doc[member]
+                    for theme_item in theme_items:
+                        theme_item["description"] = interpreter.interpret(
+                            theme_item["description"]).translate(translator)
+                case _: pass
+
+    return ctx
