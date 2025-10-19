@@ -10,7 +10,7 @@ godocs = ["py.typed"]
 
 [project]
 name = "godocs"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
   { name="Daniel Sousa (nadjiel)", email="oliveira.daaaaniel@gmail.com" },
 ]
