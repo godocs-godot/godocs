@@ -83,56 +83,46 @@ godocs construct jinja --translator <translator-path> <input-dir> <output-dir>
 godocs construct jinja --translator <md-translator> --format md --model <md-model> <input-dir> <output-dir>
 ```
 
-## Installing dependencies
+## 🧑‍💻 Developing
 
-It's **recommended** to be **inside a virtual environment** before **installing the project dependencies**, as to **not clutter your global dependencies**.
-
-To **create a virtual environment in the project folder** using Python's built-in `venv` module, run the following command:
+For **development isolation**, it is recommended to be inside a **virtual environment**, which can be accomplished by following the **steps** described at the end of the [Installation section](#-installation), quickly recaping:
 
 ``` sh
 python -m venv .venv
-```
 
-This will create a **venv** inside the `.venv` folder, which can then be activated executing:
-
-``` sh
+# On Windows:
 .venv/Scripts/activate
+# Or, on Unix:
+source .venv/Scripts/activate
 ```
 
-Now, the installations can be made with either command:
+Now, the project comes with a [`pyproject.toml`](/pyproject.toml), which specifies its **development dependencies** (this package has **no production deps**) listed under the `[project.optional-dependencies.dev]` table.
+
+If you want to **install** them, you can use the following **command**:
 
 ``` sh
-# For production only dependencies:
-pip install .
-
-# For development dependencies:
 pip install .[dev]
-
-# For peer dependencies:
-pip install .[peer]
 ```
 
-The **dependencies** installed are **listed** in the `pyproject.toml` under the `[project.dependencies]` field - for general **required dependencies** - and the `[project.optional-dependencies.dev]` field - for **development dependencies** (which include test and build stuff).
-
-**Peer dependencies** are can be **found** under the `[project.optional-dependencies.peer]` field. `Jinja2` is considered a **peer dependency** for this library as you can create **your own** `Constructors` that **don't** necessarily **need that package**, making its installation **unecessary** in those cases.
-
-If you want to use the **default** `Constructor` (most of the cases, probably), you can just **install** the **peer dependencies** with the **command** shown **above**.
-
-## Building
-
-### For development
-
-In a **dev context**, it's easier to **build** the project with the **editable option**, so **changes are automatically reflected in the current environment**.
-
-To do so, run the following command:
+If you're going to **develop**, though, I'd rather recommend you to **install the project itself** in **editable mode**, which would allow you to **make changes** and **test them** out in **real time**, **without having to rebuild and reinstall**. Here's the command to achieve that:
 
 ``` sh
 pip install --editable .
 ```
 
-### For production
+## 🧪 Testing
 
-To **build the project** for production, the `build` **dependency is needed**, which is specified in the **dev dependencies** from `pyproject.toml`.
+This project uses `pytest` as its **test framework**, which means in order to **execute tests**, you should use the **following command**:
+
+``` sh
+pytest
+```
+
+The **test files** are located under the `tests` directory, distributed under a **structure** that **mirrors the source code** arrangement.
+
+## 📦 Building
+
+To **build this project** for production, the `build` **dependency is needed**, which is specified in the **dev dependencies** from [`pyproject.toml`](/pyproject.toml).
 
 With that **dependency installed** (through the **installation of the dev dependencies**, or its manual installation), the following command can be used:
 
@@ -144,55 +134,36 @@ This will use the `setuptools` **build backend** in an **isolated temporary envi
 
 When executed, **there should be** a `dist` folder with a `.tar.gz` archive and a `.whl` build.
 
-## Deploying
+## 🚀 Deploying
+
 To deploy this package, use the following command:
 
 ``` sh
 python -m twine upload dist/*
 ```
 
-## Extending
+## 🧩 Extending
 Godocs strives to be **open for configurations and extensions** from users, that's why a **plugin system** is implemented.
 
-Currently, users can add to the application both through script plugins and plugin packages by extending the `Plugin` class. Users can add **custom constructors** as well as **custom CLI commands** to receive the configurations for those constructors, or any other modifications they want.
+Currently, users can add to the application through plugin packages by extending the `Plugin` class. Users can add **custom constructors** as well as **custom CLI commands** to receive the configurations for those constructors, or any other modifications they want.
 
-Scripts that define plugins should **expose** a `Plugin` class, that implements the base `godocs.plugin.Plugin` with its main `register` method defining what happens when this plugin is used.
+That's how the `godocs-jinja` plugin appends a new `jinja` constructor to this tool.
 
-Down below is a snippet showing an example of a **custom command plugin**, that adds a **constructor option** to the CLI, and, when chosen prints `"[Godocs Construct Custom]"` and the args `Namespace` received from argsparse:
+Keep in mind that scripts that define plugins should **expose** a `Plugin` class, that implements the base `godocs.plugin.Plugin` with its main `register` method defining what happens when this plugin is used.
 
-``` python
-from argparse import Namespace
-from godocs.plugin import Plugin as BasePlugin
-from godocs.cli import AppCommand
+A snippet showing an example of a **custom constructor plugin** that when selected prints a message describing the options chosen can be found here [in the `examples` folder](/examples/example_plugin.py).
 
+In order to be **recognized** by `godocs` and be more **easily shareable**, **plugin packages can be registered** by using **entry points**. Here's an **example** of how the `godocs-jinja` plugin **exposes itself** as a plugin so `godocs` can find and **register it**:
 
-class Plugin(BasePlugin):
-
-    def exec(self, args: Namespace):
-        print("[Godocs Construct Custom]")
-        print(args)
-
-    def register(self, app: AppCommand):
-        construct = app.commands["construct"]
-
-        construct_subparsers = construct.subparsers
-
-        if construct_subparsers is None:
-            raise
-
-        custom_parser = construct_subparsers.add_parser(
-            "custom", help="Construct docs using a custom constructor.", parents=[construct.subparsers_parent])
-
-        custom_parser.set_defaults(func=self.exec)
-
-```
-
-In order to **apply this plugin** to the **CLI**, the `-p` or `--plugin` **option** can be passed with the **path to this script** in the `godocs` program.
-
-In order to make plugins more easily shareable, plugin packages are also supported by using entry points. Here's an example of how the `godocs-jinja` plugin exposes itself as a plugin so `godocs` can find and register it:
-
-``` python
+``` toml
 # pyproject.toml
 [project.entry-points."godocs.plugins"]
 jinja = "godocs_jinja.main:JinjaPlugin"
+```
+
+And here's an **example** of how the `ExamplePlugin` mentioned before would be **registered**, if it was right **inside** the `src` folder in this project:
+
+``` toml
+[project.entry-points."godocs.plugins"]
+example-plugin = "example_plugin:ExamplePlugin"
 ```
