@@ -93,7 +93,7 @@ The **data needed** for docs generation will **depend on what templates you'll u
 
 ## 🧑‍💻 Developing
 
-For **development isolation**, it is recommended to be inside a **virtual environment**, which can be accomplished by following the **steps** described at the end of the [Installation section](#-installation), quickly recaping:
+For **development isolation**, it is recommended to be inside a **virtual environment**, which can be accomplished by following the **steps** described at the end of the **Installation section**, quickly recaping:
 
 ``` sh
 python -m venv .venv
@@ -104,7 +104,7 @@ python -m venv .venv
 source .venv/Scripts/activate
 ```
 
-Now, the project comes with a [`pyproject.toml`](/pyproject.toml), which specifies its **development dependencies** (this package has **no production deps**) listed under the `[project.optional-dependencies.dev]` table.
+Now, the project comes with a `pyproject.toml`, which specifies its **development dependencies** (this package has **no production deps**) listed under the `[project.optional-dependencies.dev]` table.
 
 If you want to **install** them, you can use the following **command**:
 
@@ -130,7 +130,7 @@ The **test files** are located under the `tests` directory, distributed under a 
 
 ## 📦 Building
 
-To **build this project** for production, the `build` **dependency is needed**, which is specified in the **dev dependencies** from [`pyproject.toml`](/pyproject.toml).
+To **build this project** for production, the `build` **dependency is needed**, which is specified in the **dev dependencies** from `pyproject.toml`.
 
 With that **dependency installed** (through the **installation of the dev dependencies**, or its manual installation), the following command can be used:
 
@@ -159,7 +159,7 @@ That's how the `godocs-jinja` plugin appends a new `jinja` constructor to this t
 
 Keep in mind that scripts that define plugins should **expose** a `Plugin` class, that implements the base `godocs.plugin.Plugin` with its main `register` method defining what happens when this plugin is used.
 
-A snippet showing an example of a **custom constructor plugin** that when selected prints a message describing the options chosen can be found here [in the `examples` folder](/examples/example_plugin.py).
+A snippet showing an example of a **custom constructor plugin** that when selected prints a message describing the options chosen can be found here in the `examples` folder.
 
 In order to be **recognized** by `godocs` and be more **easily shareable**, **plugin packages can be registered** by using **entry points**. Here's an **example** of how the `godocs-jinja` plugin **exposes itself** as a plugin so `godocs` can find and **register it**:
 
