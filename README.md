@@ -29,18 +29,58 @@ Here's an example of how to **generate RST documentation**, having both `godocs`
 godocs construct jinja <input-dir> <output-dir>
 ```
 
-### Commands
+## 📥 Installation
 
-Godocs provides a CLI with commands for generating documentation. Here's a quick list:
+To start using the **Godocs CLI**, you can **install** both the **main package** and the **Jinja constructor** through **PIP**.
+
+Here's the commands:
 
 ``` sh
-godocs --[h]elp
-godocs --[p]lugin
+# To install the main CLI:
+pip install godocs
 
-godocs construct --[h]elp
-godocs construct {constructor}
-godocs construct jinja --[h]elp
-godocs construct jinja --[t]ranslator --[m]odel --[T]emplates --[F]ilters --[B]uilders <in> <out>
+# To install the Jinja2 based constructor:
+pip install godocs-jinja
+```
+
+> 💡 **HINT**: Depending on your needs, it may be useful to install packages in a **virtual environment**, as to not pollute your global env. Sometimes you may want to install stuff globally, though, it really depends.<br>
+Generally speaking, I'd recommend **installing globally** if you're in a **CI/ CD runner**, for example, and installing in an **environment** if you're in your **local computer testing** out in a single repository.
+
+If you desire to **isolate installation** in a `venv`, you should previously have run these **commands**:
+
+``` sh
+# To create a venv in a .venv folder:
+python -m venv .venv
+
+# To activate the created venv on Windows:
+.venv/Scripts/activate
+# Or, on Unix systems or Git Bash, for example:
+source .venv/Scripts/activate
+```
+
+## 🎛️ Commands
+
+The **Godocs CLI** exposes some commands via the `godocs` entrypoint (if you installed in a **virtual environment**, make sure to have it **activated** before effectively using the program).
+
+**Without** any **constructor plugin**, the only command available is the `construct`, which serves as the **main documentation generator**. That command doesn't do anything by itself, though, needing **at least one extension** to come into action.
+
+If you installed the `godocs-jinja` plugin, like recommended, then you get to use the `jinja` subcommand as your **constructor**.
+
+Down below are some quick **examples** of how to use `godocs` with `godocs-jinja` to **generate documentation**.
+
+If you want a more **in depth overview** of the arguments, commands, and options available, you can always use the `-h` / `--help` option with **any command**.
+
+Also, if you want **more details** on `godocs-jinja` concepts, like **models**, **templates**, **filters** and **builders**, you can read more about them in its **repository** in this [link](https://github.com/godocs-godot/godocs-jinja).
+
+``` sh
+# Generates documentation based on the XML in the input-dir inside the output-dir, in the RST language.
+godocs construct jinja <input-dir> <output-dir>
+
+# Generates documentation based on the XML from the input-dir inside the output-dir, in the RST language, translating the syntax of any text within it using the custom translator in the translator-path.
+godocs construct jinja --translator <translator-path> <input-dir> <output-dir>
+
+# Generates documentation based on the XML from the input-dir inside the output-dir, using the model specified by md-model, with the md file suffix, translating the syntax of any text within the XML using the custom translator in the md-translator path.
+godocs construct jinja --translator <md-translator> --format md --model <md-model> <input-dir> <output-dir>
 ```
 
 ## Installing dependencies
